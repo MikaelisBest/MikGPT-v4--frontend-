@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MikGPT-V4</title>
+    <link id="theme-style" rel="stylesheet" href="css/light.css">
+</head>
+<body>
+    <div class="chat-container">
+        <header>
+            <h1>MikGPT-V4</h1>
+            <button id="theme-toggle" title="Toggle Theme">🌓</button>
+        </header>
+
+        <div id="chat-messages" class="messages">
+            <div id="loading-indicator" style="display: none;" class="message bot-message">Typing<span class="dots"></span></div>
+        </div>
+
+        <form id="message-form">
+            <input id="message-input" type="text" placeholder="Type your message..." autocomplete="off" />
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
