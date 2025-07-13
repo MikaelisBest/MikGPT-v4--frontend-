@@ -1,74 +1,48 @@
-const themeToggle = document.getElementById('theme-toggle');
-const body = document.body;
-const themeStyle = document.getElementById('theme-style');
+const form = document.getElementById("message-form");
+const input = document.getElementById("message-input");
+const messages = document.getElementById("chat-messages");
+const loader = document.getElementById("loading-indicator");
 
-let isDarkTheme = false;
-const savedTheme = localStorage.getItem('mikgpt-theme');
-if (savedTheme === 'dark') enableDarkTheme();
+const BACKEND_URL = "https://mikgpt-backend.up.railway.app/api/chat";
 
-function enableDarkTheme() {
-    body.classList.remove('light-theme');
-    body.classList.add('dark-theme');
-    themeStyle.href = 'css/dark.css';
-    localStorage.setItem('mikgpt-theme', 'dark');
-    isDarkTheme = true;
-}
-
-function enableLightTheme() {
-    body.classList.remove('dark-theme');
-    body.classList.add('light-theme');
-    themeStyle.href = 'css/light.css';
-    localStorage.setItem('mikgpt-theme', 'light');
-    isDarkTheme = false;
-}
-
-themeToggle.addEventListener('click', () => {
-    if (!isDarkTheme) enableDarkTheme();
-    else enableLightTheme();
-});
-
-document.getElementById('message-form').addEventListener('submit', async function (e) {
+form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    const userMessage = input.value.trim();
+    if (!userMessage) return;
 
-    const input = document.getElementById('message-input');
-    const message = input.value.trim();
-    if (!message) return;
+    addMessage("user", userMessage);
+    input.value = "";
 
-    displayMessage(message, 'user');
-    input.value = '';
-
-    const loader = document.getElementById('loading-indicator');
-    loader.style.display = 'block';
+    loader.style.display = "block";
 
     try {
-        const response = await fetch('https://mikgpt-backend.up.railway.app/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message })
+        const res = await fetch(BACKEND_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: userMessage })
         });
 
-        const data = await response.json();
-        loader.style.display = 'none';
+        const data = await res.json();
+        loader.style.display = "none";
 
-        if (data.status === 'success') {
-            displayMessage(data.response, 'bot');
+        if (data.status === "success") {
+            addMessage("bot", data.response);
         } else {
-            displayMessage('I encountered an error. Please try again.', 'bot');
+            addMessage("bot", "❌ Error: " + data.message);
         }
-    } catch (error) {
-        loader.style.display = 'none';
-        console.error('Error:', error);
-        displayMessage('An error occurred. Please check your connection.', 'bot');
+    } catch (err) {
+        loader.style.display = "none";
+        addMessage("bot", "🚫 Failed to connect to backend.");
+        console.error("Error:", err);
     }
 });
 
-function displayMessage(text, sender) {
-    const messagesDiv = document.getElementById('chat-messages');
-    const messageElement = document.createElement('div');
-
-    messageElement.className = `message ${sender}-message`;
-    messageElement.textContent = text;
-
-    messagesDiv.appendChild(messageElement);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+function addMessage(sender, text) {
+    const message = document.createElement("div");
+    message.classList.add("message", `${sender}-message`);
+    message.textContent = text;
+    messages.insertBefore(message, loader);
+    messages.scrollTop = messages.scrollHeight;
 }
