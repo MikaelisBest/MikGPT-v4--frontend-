@@ -224,3 +224,41 @@ logoutBtn.addEventListener("click", () => {
     alert("👋 Logged out");
   });
 });
+
+// 🔐 Firebase Auth logic
+firebase.auth().onAuthStateChanged((user) => {
+  const authSection = document.getElementById("auth-section");
+  const chatWrapper = document.querySelector(".chat-wrapper");
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  if (user) {
+    authSection.style.display = "none";
+    chatWrapper.style.display = "flex";
+    logoutBtn.style.display = "inline-block";
+  } else {
+    authSection.style.display = "flex";
+    chatWrapper.style.display = "none";
+    logoutBtn.style.display = "none";
+  }
+});
+
+document.getElementById("signInBtn").addEventListener("click", () => {
+  const email = document.getElementById("emailInput").value;
+  const password = document.getElementById("passwordInput").value;
+  firebase.auth().signInWithEmailAndPassword(email, password).catch(console.error);
+});
+
+document.getElementById("signUpBtn").addEventListener("click", () => {
+  const email = document.getElementById("emailInput").value;
+  const password = document.getElementById("passwordInput").value;
+  firebase.auth().createUserWithEmailAndPassword(email, password).catch(console.error);
+});
+
+document.getElementById("googleBtn").addEventListener("click", () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(provider).catch(console.error);
+});
+
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  firebase.auth().signOut().catch(console.error);
+});
