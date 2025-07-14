@@ -3,6 +3,7 @@ const firebaseConfig = {
   authDomain: "mikgpt.firebaseapp.com",
   projectId: "mikgpt"
 };
+firebase.initializeApp(firebaseConfig);
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
