@@ -2,24 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MikGPT-V4</title>
   <link rel="icon" href="favicon.ico" />
   <link id="themeStylesheet" rel="stylesheet" href="css/light.css" />
 </head>
 <body>
-  <div class="container">
-    <header>
+  <div class="app-container">
+    <header class="app-header">
       <h1>MikGPT-V4</h1>
       <button id="toggleMode">🌙</button>
     </header>
 
-    <div id="chatbox" class="chatbox"></div>
+    <main id="chat-messages" class="chat-area">
+      <div id="loading-indicator" style="display: none;" class="loader">MikGPT is thinking...</div>
+    </main>
 
-    <form id="chatForm">
+    <form id="message-form" class="chat-form">
       <input
         type="text"
-        id="userInput"
+        id="message-input"
         placeholder="Type your message..."
         required
       />
