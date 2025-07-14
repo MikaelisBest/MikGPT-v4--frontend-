@@ -109,8 +109,8 @@ body {
 
 /* 🤖 Bot bubble (left side) */
 .bot-message {
-  background: #e5e5e5; /* or #333 in dark mode */
-  color: #000;         /* or #eaeaea in dark mode */
+  background: #333; /* or #333 in dark mode */
+  color: #eaeaea;         /* or #eaeaea in dark mode */
   margin-right: auto;  /* just in case */
 }
 
