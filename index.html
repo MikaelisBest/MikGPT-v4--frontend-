@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MikGPT</title>
   <link rel="stylesheet" href="css/base.css" />
   <link id="themeStylesheet" rel="stylesheet" href="css/light.css" />
@@ -11,33 +11,37 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <div class="app">
+  <div id="auth-section" class="auth-section">
+    <h2>MikGPT Login</h2>
+    <input type="email" id="emailInput" placeholder="Email" />
+    <input type="password" id="passwordInput" placeholder="Password" />
+    <div class="auth-buttons">
+      <button id="signInBtn">Log In</button>
+      <button id="signUpBtn">Sign Up</button>
+      <button id="googleBtn">Google</button>
+    </div>
+  </div>
+
+  <div id="chat-wrapper" class="hidden app">
     <aside class="sidebar">
       <h2>MikGPT</h2>
-      <button id="newChatBtn">+ New Chat</button>
-      <button id="toggleMode">🌙</button>
-      <button id="resetChat">♻️</button>
-      <button id="downloadChat">⬇️</button>
-      <button id="logoutBtn">🚪</button>
+      <div class="sidebar-buttons">
+        <button id="toggleMode">🌙</button>
+        <button id="resetChat">♻️</button>
+        <button id="downloadChat">⬇️</button>
+        <button id="logoutBtn">🚪</button>
+      </div>
     </aside>
+
     <main class="chat-area">
       <div id="chat-messages" class="chat-messages">
         <div id="loading-indicator" class="loading hidden">MikGPT is thinking...</div>
       </div>
       <form id="message-form" class="chat-form">
-        <input type="text" id="message-input" placeholder="Ask MikGPT..." autocomplete="off" required />
+        <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off" required />
         <button type="submit">➤</button>
       </form>
     </main>
-  </div>
-
-  <div id="auth-section" class="auth-section hidden">
-    <h2>Login to MikGPT</h2>
-    <input type="email" id="emailInput" placeholder="Email" />
-    <input type="password" id="passwordInput" placeholder="Password" />
-    <button id="signInBtn">Log In</button>
-    <button id="signUpBtn">Sign Up</button>
-    <button id="googleBtn">Google</button>
   </div>
 
   <script>

@@ -1,7 +1,21 @@
 :root {
-  --bg: #ffffff;
-  --text: #000000;
-  --sidebar-bg: #f5f5f5;
-  --bubble-user: #d4f1ff;
-  --bubble-bot: #e0e0e0;
+  --bg: #f9f9f9;
+  --text: #111;
+  --sidebar-bg: #ffffff;
+  --form-bg: #ffffff;
+  --border: #ddd;
+  --input-bg: #fff;
+  --accent: #007bff;
+
+  --button-bg: #f0f0f0;
+  --button-text: #111;
+  --button-hover: #e0e0e0;
+
+  --user-bubble: #d0ebff;
+  --bot-bubble: #eaeaea;
+  --user-text: #000;
+  --bot-text: #111;
+
+  --timestamp: #666;
+  --shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
