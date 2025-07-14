@@ -82,7 +82,7 @@ function addMessage(sender, text) {
                 clearInterval(typingInterval);
                 loader.style.display = "none";
             }
-        }, 15); // typing speed (lower = faster)
+        }, 7.5); // typing speed (lower = faster)
     } else {
         message.textContent = text;
     }
