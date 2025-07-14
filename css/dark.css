@@ -256,6 +256,11 @@ html.transitioning {
 }
 
 #auth-section input {
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 250px;
   background: #1e1e1e;
   color: #f0f0f0;
   border: 1px solid #444;
