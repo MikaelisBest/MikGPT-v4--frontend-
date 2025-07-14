@@ -3,9 +3,7 @@ const input = document.getElementById("message-input");
 const messages = document.getElementById("chat-messages");
 const loader = document.getElementById("loading-indicator");
 
-const BACKEND_URL = location.hostname === "localhost"
-    ? "http://127.0.0.1:3000/api/chat"
-    : "https://mikgpt-backend.up.railway.app/api/chat";
+const BACKEND_URL = "https://mikgpt-v4-backend-production.up.railway.app/api/chat";
 
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
