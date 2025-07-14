@@ -99,19 +99,17 @@ body {
   text-align: right; /* ✅ Makes text & timestamp align right */
 }
 
-.message {
-  padding: 0.8rem 1rem;
-  border-radius: 12px;
-  max-width: 75%;
-  word-wrap: break-word;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+.message-container.user {
+  align-items: flex-end;
+  text-align: right;
+  width: 100%;               /* take full row space */
 }
 
-/* User bubble (right side) */
 .user-message {
   background: #4a90e2;
   color: white;
-  align-self: flex-end; /* ✅ Ensures bubble sticks right */
+  align-self: flex-end;
+  margin-left: auto;         /* ✅ push bubble all the way right */
 }
 
 /* Bot bubble (left side) */
