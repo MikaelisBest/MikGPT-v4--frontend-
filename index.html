@@ -1,28 +1,32 @@
 <!DOCTYPE html>
-<html lang="en" class="light-theme">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MikGPT-V4</title>
-    <link id="theme-style" rel="stylesheet" href="css/light.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MikGPT-V4</title>
+  <link rel="icon" href="favicon.ico" />
+  <link id="themeStylesheet" rel="stylesheet" href="css/light.css" />
 </head>
 <body>
-    <div class="chat-container">
-        <header>
-            <h1>MikGPT-V4</h1>
-            <button id="theme-toggle" title="Toggle Theme">🌓</button>
-        </header>
+  <div class="container">
+    <header>
+      <h1>MikGPT-V4</h1>
+      <button id="toggleMode">🌙</button>
+    </header>
 
-        <div id="chat-messages" class="messages">
-            <div id="loading-indicator" style="display: none;" class="message bot-message">Typing<span class="dots"></span></div>
-        </div>
+    <div id="chatbox" class="chatbox"></div>
 
-        <form id="message-form">
-            <input id="message-input" type="text" placeholder="Type your message..." autocomplete="off" />
-            <button type="submit">Send</button>
-        </form>
-    </div>
+    <form id="chatForm">
+      <input
+        type="text"
+        id="userInput"
+        placeholder="Type your message..."
+        required
+      />
+      <button type="submit">Send</button>
+    </form>
+  </div>
 
-    <script src="js/script.js"></script>
+  <script src="js/script.js"></script>
 </body>
 </html>

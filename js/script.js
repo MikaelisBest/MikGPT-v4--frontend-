@@ -1,10 +1,27 @@
+// 🌗 Theme toggle setup — PUT THIS AT THE VERY TOP
+const toggleBtn = document.getElementById("toggleMode");
+const themeLink = document.getElementById("themeStylesheet");
+
+let savedTheme = localStorage.getItem("theme") || "light";
+themeLink.href = `css/${savedTheme}.css`;
+toggleBtn.textContent = savedTheme === "dark" ? "☀️" : "🌙";
+
+toggleBtn.addEventListener("click", () => {
+    const current = themeLink.href.includes("dark") ? "dark" : "light";
+    const next = current === "dark" ? "light" : "dark";
+
+    themeLink.href = `css/${next}.css`;
+    localStorage.setItem("theme", next);
+    toggleBtn.textContent = next === "dark" ? "☀️" : "🌙";
+});
+
+// 💬 Chat logic below — already working 🔥
 const form = document.getElementById("message-form");
 const input = document.getElementById("message-input");
 const messages = document.getElementById("chat-messages");
 const loader = document.getElementById("loading-indicator");
 
 const BACKEND_URL = "https://mikgpt-v4-backend-production.up.railway.app/api/chat";
-
 
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
