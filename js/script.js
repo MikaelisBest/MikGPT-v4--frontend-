@@ -5,6 +5,7 @@ const loader = document.getElementById("loading-indicator");
 
 const BACKEND_URL = "https://mikgpt-v4-backend-production.up.railway.app/api/chat";
 
+
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const userMessage = input.value.trim();
