@@ -82,6 +82,7 @@ body {
 }
 
 .message {
+  align-self: flex-end;
   padding: 0.8rem 1rem;
   border-radius: 10px;
   word-wrap: break-word;
