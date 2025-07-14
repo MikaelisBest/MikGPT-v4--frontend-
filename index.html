@@ -1,112 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>MikGPT-V4</title>
   <link rel="icon" href="favicon.ico" />
-  <link id="themeStylesheet" rel="stylesheet" href="css/light.css" />
+  <link id="themeStylesheet" href="css/light.css" rel="stylesheet">
 
-  <!-- Firebase SDK (Compat) -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
   <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyCcClI7IoSqBc1WAitxRO9OWgcDoyers4Y",
+      apiKey: "...",
       authDomain: "mikgpt.firebaseapp.com",
       projectId: "mikgpt",
-      storageBucket: "mikgpt.appspot.com",
-      messagingSenderId: "399290939653",
       appId: "1:399290939653:web:dbece7f7171b31112f9f6c"
     };
     firebase.initializeApp(firebaseConfig);
   </script>
 </head>
 <body>
-  <!-- 🔐 Auth Section -->
-  <div id="auth-section" style="display: none; flex-direction: column; align-items: center; gap: 0.5rem; padding: 2rem;">
-    <h2>Welcome to MikGPT</h2>
-    <input type="email" id="emailInput" placeholder="Email" />
-    <input type="password" id="passwordInput" placeholder="Password" />
-    <div style="display: flex; gap: 0.5rem;">
+  <div id="auth-section" class="overlay hidden">
+    <div class="auth-box">
+      <h2>MikGPT Login</h2>
+      <input id="emailInput" type="email" placeholder="Email" />
+      <input id="passwordInput" type="password" placeholder="Password" />
       <button id="signInBtn">Log In</button>
       <button id="signUpBtn">Sign Up</button>
+      <button id="googleBtn">Sign in with Google</button>
     </div>
-    <button id="googleBtn">Sign in with Google</button>
   </div>
 
-  <!-- 🤖 Chat Section -->
-  <div class="chat-wrapper" id="chat-wrapper" style="display: none;">
-    <header class="chat-header">
+  <div id="chat-wrapper" class="hidden">
+    <header class="top-bar">
       <h1>MikGPT</h1>
-      <div class="top-controls">
-        <button id="toggleMode" title="Toggle Theme">🌙</button>
-        <button id="newChatBtn" title="New Chat">➕</button>
-        <select id="chatSelector" title="Chat History"></select>
-        <button id="resetChat" title="Reset Chat">♻️</button>
-        <button id="downloadChat" title="Download Chat">⬇️</button>
-        <button id="logoutBtn" title="Logout">🚪</button>
+      <div>
+        <button id="toggleMode">🌙</button>
+        <button id="newChatBtn">➕ New Chat</button>
+        <select id="chatSelector"></select>
+        <button id="resetChat">♻️ Reset</button>
+        <button id="downloadChat">⬇️ Download</button>
+        <button id="logoutBtn">🚪</button>
       </div>
     </header>
 
-    <div id="chat-messages" class="chat-messages">
-      <div id="loading-indicator" class="loading">MikGPT is thinking...</div>
+    <div id="chat-messages" class="chat-window">
+      <div id="loading-indicator" class="loading hidden">MikGPT is thinking...</div>
     </div>
 
-    <form id="message-form" class="chat-form">
-      <input
-        type="text"
-        id="message-input"
-        placeholder="Ask something..."
-        autocomplete="off"
-        required
-      />
+    <form id="message-form" class="chat-input">
+      <input id="message-input" type="text" placeholder="Ask something..." autocomplete="off" />
       <button type="submit">➤</button>
     </form>
   </div>
 
-  <!-- JS Scripts -->
-  <script src="js/script.js"></script>
-  <script>
-    const auth = firebase.auth();
-    const authSection = document.getElementById("auth-section");
-    const chatWrapper = document.getElementById("chat-wrapper");
-
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        authSection.style.display = "none";
-        chatWrapper.style.display = "flex";
-        console.log("✅ Logged in as:", user.email);
-      } else {
-        chatWrapper.style.display = "none";
-        authSection.style.display = "flex";
-      }
-    });
-
-    document.getElementById("signInBtn").addEventListener("click", () => {
-      const email = document.getElementById("emailInput").value;
-      const pass = document.getElementById("passwordInput").value;
-      auth.signInWithEmailAndPassword(email, pass).catch(err => alert("❌ " + err.message));
-    });
-
-    document.getElementById("signUpBtn").addEventListener("click", () => {
-      const email = document.getElementById("emailInput").value;
-      const pass = document.getElementById("passwordInput").value;
-      auth.createUserWithEmailAndPassword(email, pass).catch(err => alert("❌ " + err.message));
-    });
-
-    document.getElementById("googleBtn").addEventListener("click", () => {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider).catch(err => alert("❌ " + err.message));
-    });
-
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      auth.signOut().then(() => {
-        console.log("👋 Logged out");
-      });
-    });
-  </script>
+  <script type="module" src="js/script.js"></script>
 </body>
 </html>

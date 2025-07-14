@@ -1,287 +1,174 @@
 import { saveMessage, loadHistory, clearHistory } from "./chatHistory.js";
 
-// 🌗 Theme toggle
-const toggleBtn = document.getElementById("toggleMode");
-const themeLink = document.getElementById("themeStylesheet");
+const ui = {
+  auth: document.getElementById("auth-section"),
+  chatW: document.getElementById("chat-wrapper"),
+  email: document.getElementById("emailInput"),
+  pass: document.getElementById("passwordInput"),
+  signIn: document.getElementById("signInBtn"),
+  signUp: document.getElementById("signUpBtn"),
+  google: document.getElementById("googleBtn"),
+  logout: document.getElementById("logoutBtn"),
+  toggle: document.getElementById("toggleMode"),
+  newChat: document.getElementById("newChatBtn"),
+  selector: document.getElementById("chatSelector"),
+  reset: document.getElementById("resetChat"),
+  download: document.getElementById("downloadChat"),
+  form: document.getElementById("message-form"),
+  input: document.getElementById("message-input"),
+  window: document.getElementById("chat-messages"),
+  loader: document.getElementById("loading-indicator")
+};
 
-let savedTheme = localStorage.getItem("theme") || "light";
-themeLink.href = `css/${savedTheme}.css`;
-toggleBtn.textContent = savedTheme === "dark" ? "☀️" : "🌙";
+let db, userId, activeChatId;
+let chatHistory = [];
 
-toggleBtn.addEventListener("click", () => {
-  document.documentElement.classList.add("transitioning");
-  setTimeout(() => {
-    const current = themeLink.href.includes("dark") ? "dark" : "light";
-    const next = current === "dark" ? "light" : "dark";
-    themeLink.href = `css/${next}.css`;
-    localStorage.setItem("theme", next);
-    toggleBtn.textContent = next === "dark" ? "☀️" : "🌙";
-    setTimeout(() => document.documentElement.classList.remove("transitioning"), 300);
-  }, 50);
+// Theme toggle
+ui.toggle.addEventListener("click", () => {
+  const current = localStorage.getItem("theme") || "light";
+  const next = current === "dark" ? "light" : "dark";
+  document.getElementById("themeStylesheet").href = `css/${next}.css`;
+  localStorage.setItem("theme", next);
+  ui.toggle.textContent = next === "dark" ? "☀️" : "🌙";
 });
 
-// 🔁 Chat state
-let chatHistory = [];
-let userId = null;
-let db = null;
-let activeChatId = null;
-
-// DOM refs
-const form = document.getElementById("message-form");
-const input = document.getElementById("message-input");
-const messages = document.getElementById("chat-messages");
-const loader = document.getElementById("loading-indicator");
-const resetBtn = document.getElementById("resetChat");
-const downloadBtn = document.getElementById("downloadChat");
-const promptBtns = document.querySelectorAll(".prompt-btn");
-const chatSelector = document.getElementById("chatSelector");
-const newChatBtn = document.getElementById("newChat");
-
-const BACKEND_URL = "https://mikgpt-v4-backend-production.up.railway.app/api/chat";
-
-// 🔐 Firebase Auth + Firestore Chat Loading
-firebase.auth().onAuthStateChanged(async (user) => {
-  const authSection = document.getElementById("auth-section");
-  const chatWrapper = document.getElementById("chat-wrapper");
-
+// Auth state
+firebase.auth().onAuthStateChanged(async user => {
   if (user) {
+    ui.auth.classList.add("hidden");
+    ui.chatW.classList.remove("hidden");
+
     db = firebase.firestore();
     userId = user.uid;
 
-    authSection.style.display = "none";
-    chatWrapper.style.display = "flex";
-
     await loadChatSessions();
-    if (!activeChatId) {
-      startNewChat();
-    } else {
-      loadChatFromFirestore(activeChatId);
-    }
+    if (!activeChatId) startNewChat();
+    else loadFromFirestore(activeChatId);
+
   } else {
-    chatWrapper.style.display = "none";
-    authSection.style.display = "flex";
+    ui.chatW.classList.add("hidden");
+    ui.auth.classList.remove("hidden");
   }
 });
 
-// 🆕 New Chat
-newChatBtn.addEventListener("click", startNewChat);
+// Auth buttons
+ui.signIn.onclick = () => firebase.auth().signInWithEmailAndPassword(ui.email.value, ui.pass.value).catch(alert);
+ui.signUp.onclick = () => firebase.auth().createUserWithEmailAndPassword(ui.email.value, ui.pass.value).catch(alert);
+ui.google.onclick = () => firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(alert);
+ui.logout.onclick = () => firebase.auth().signOut();
 
+// New chat
+ui.newChat.onclick = startNewChat;
 async function startNewChat() {
-  if (!db || !userId) return;
-
-  const newChatRef = await db.collection("users").doc(userId).collection("chats").add({
-    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-  });
-
-  activeChatId = newChatRef.id;
+  const ref = await db.collection("users").doc(userId).collection("chats").add({ createdAt: Date.now() });
+  activeChatId = ref.id;
   localStorage.setItem("activeChatId", activeChatId);
   chatHistory = [];
-  clearMessagesFromDOM();
+  ui.window.innerHTML = "";
   await loadChatSessions();
 }
 
-// 🔄 Load Chat Sessions
+// Load chat sessions
 async function loadChatSessions() {
-  chatSelector.innerHTML = "";
-  const snapshot = await db.collection("users").doc(userId).collection("chats").orderBy("createdAt").get();
-
-  snapshot.forEach(doc => {
-    const option = document.createElement("option");
-    option.value = doc.id;
-    option.textContent = `Chat ${doc.id.substring(0, 5)}`;
-    if (doc.id === activeChatId) option.selected = true;
-    chatSelector.appendChild(option);
+  ui.selector.innerHTML = "";
+  const snap = await db.collection("users").doc(userId).collection("chats").orderBy("createdAt", "asc").get();
+  snap.forEach(d => {
+    const opt = document.createElement("option");
+    opt.value = d.id;
+    opt.textContent = "Chat " + d.id.slice(-5);
+    if (d.id === localStorage.getItem("activeChatId")) {
+      activeChatId = d.id;
+      opt.selected = true;
+    }
+    ui.selector.appendChild(opt);
   });
 }
 
-// 🧠 Switch between chat sessions
-chatSelector.addEventListener("change", async (e) => {
-  activeChatId = e.target.value;
+// Selector change
+ui.selector.onchange = async () => {
+  activeChatId = ui.selector.value;
   localStorage.setItem("activeChatId", activeChatId);
   chatHistory = [];
-  clearMessagesFromDOM();
-  await loadChatFromFirestore(activeChatId);
-});
+  ui.window.innerHTML = "";
+  await loadFromFirestore(activeChatId);
+};
 
-async function loadChatFromFirestore(chatId) {
-  const snapshot = await db.collection("users").doc(userId).collection("chats").doc(chatId).collection("messages").orderBy("timestamp").get();
-  messages.innerHTML = "";
-
-  snapshot.forEach(doc => {
-    const msg = doc.data();
-    const time = msg.timestamp?.toDate?.().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) || "⏱";
-    addMessage(msg.sender, msg.text, time);
-    chatHistory.push({ sender: msg.sender, text: msg.text, time });
-  });
-}
-
-// 📨 Form submit
-form.addEventListener("submit", async (e) => {
+// Submit
+ui.form.onsubmit = async e => {
   e.preventDefault();
-  const userMessage = input.value.trim();
-  if (!userMessage) return;
-
-  const time = getTime();
-  addMessage("user", userMessage, time);
-  saveAndPush("user", userMessage, time);
-  input.value = "";
-  loader.style.display = "block";
+  const text = ui.input.value = ui.input.value.trim();
+  if (!text) return;
+  const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  showMessage("user", text, time);
+  saveAndSend("user", text, time);
+  ui.input.value = "";
+  ui.loader.classList.remove("hidden");
 
   try {
-    const res = await fetch(BACKEND_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: userMessage }),
+    const res = await fetch("https://mikgpt-v4-backend-production.up.railway.app/api/chat", {
+      method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ message: text })
     });
-
     const data = await res.json();
-
-    if (data.status === "success") {
-      const botTime = getTime();
-      addMessage("bot", data.response, botTime);
-      saveAndPush("bot", data.response, botTime);
-    } else {
-      addMessage("bot", "❌ Error: " + data.message);
-    }
-  } catch (err) {
-    addMessage("bot", "🚫 Backend connection failed.");
-    console.error(err);
+    const resp = data.status === "success" ? data.response : "❌ " + data.message;
+    showMessage("bot", resp, getTime());
+  } catch {
+    showMessage("bot", "🚫 Connection failed.", getTime());
   }
-});
+};
 
-// ➕ Add to DOM
-function addMessage(sender, text, time = "") {
-  const container = document.createElement("div");
-  container.classList.add("message-container");
-  if (sender === "user") container.classList.add("user");
-
-  const message = document.createElement("div");
-  message.classList.add("message", `${sender}-message`);
-
-  const timestamp = document.createElement("div");
-  timestamp.className = "timestamp";
-  timestamp.textContent = time;
-
-  if (sender === "bot") {
-    let i = 0;
-    const typingInterval = setInterval(() => {
-      if (i < text.length) {
-        message.innerHTML += formatMarkdown(text.charAt(i));
-        i++;
-        messages.scrollTop = messages.scrollHeight;
-      } else {
-        clearInterval(typingInterval);
-        loader.style.display = "none";
-      }
-    }, 10);
-  } else {
-    message.innerHTML = formatMarkdown(text);
-  }
-
-  container.appendChild(message);
-  if (time) container.appendChild(timestamp);
-  messages.insertBefore(container, loader);
-  messages.scrollTo({ top: messages.scrollHeight, behavior: "smooth" });
-}
-
-// 💾 Save message
-function saveAndPush(sender, text, time) {
-  chatHistory.push({ sender, text, time });
-  localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
-
-  if (db && userId && activeChatId) {
-    db.collection("users")
-      .doc(userId)
-      .collection("chats")
-      .doc(activeChatId)
-      .collection("messages")
-      .add({
-        sender,
-        text,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-      });
-  }
-}
-
-// 🧹 Reset
-resetBtn.addEventListener("click", () => {
-  clearMessagesFromDOM();
-  input.value = "";
-  loader.style.display = "none";
+// Reset
+ui.reset.onclick = () => {
+  ui.window.innerHTML = "";
   chatHistory = [];
   clearHistory();
-});
+};
 
-function clearMessagesFromDOM() {
-  Array.from(messages.children).forEach((child) => {
-    if (child.id !== "loading-indicator") child.remove();
-  });
-}
-
-// 📥 Download
-downloadBtn.addEventListener("click", () => {
-  let txt = "";
-  chatHistory.forEach(({ sender, text, time }) => {
-    txt += `[${time}] ${sender.toUpperCase()}: ${text}\n`;
-  });
-  const blob = new Blob([txt], { type: "text/plain" });
+// Download
+ui.download.onclick = () => {
+  const blob = new Blob([chatHistory.map(c=>`[${c.time}] ${c.sender.toUpperCase()}: ${c.text}`).join("\n")],{type:"text/plain"});
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = "mikgpt_chat.txt";
+  link.download = "chat.txt";
   link.click();
-});
+};
 
-// 🔘 Prompts
-promptBtns.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    input.value = btn.textContent;
-    input.focus();
-  });
-});
+// Show message
+function showMessage(sender, text, time) {
+  const div = document.createElement("div");
+  div.classList.add("message-container", sender === "user"? "user":"bot");
+  const bubble = document.createElement("div");
+  bubble.classList.add("message");
+  bubble.innerHTML = text;
+  const stamp = document.createElement("div");
+  stamp.classList.add("timestamp");
+  stamp.textContent = time;
+  div.append(bubble, stamp);
+  ui.window.insertBefore(div, ui.loader);
+  ui.window.scrollTop = ui.window.scrollHeight;
+}
 
-// ⌨️ Enter to send
-input.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();
-    form.dispatchEvent(new Event("submit"));
+// Save + send to Firestore
+async function saveAndSend(sender,text,time) {
+  chatHistory.push({ sender, text, time });
+  saveMessage(sender,text,time);
+  if (db && userId && activeChatId) {
+    await db.collection("users").doc(userId).collection("chats").doc(activeChatId).collection("messages")
+      .add({ sender, text, time, timestamp: Date.now() });
   }
-});
-
-// 🕐 Time
-function getTime() {
-  return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
-// 📄 Markdown
-function formatMarkdown(text) {
-  return text
-    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.*?)\*/g, "<em>$1</em>")
-    .replace(/`(.*?)`/g, "<code>$1</code>")
-    .replace(/(?:\r\n|\r|\n)/g, "<br>")
-    .replace(/:\)/g, "😊")
-    .replace(/:\(/g, "😢")
-    .replace(/:D/g, "😄");
+// Load from Firestore
+async function loadFromFirestore(id) {
+  const snap = await db.collection("users").doc(userId).collection("chats").doc(id).collection("messages").orderBy("timestamp").get();
+  ui.window.innerHTML = "";
+  chatHistory = [];
+  snap.forEach(d=>{
+    const m = d.data();
+    const t = m.time;
+    showMessage(m.sender,m.text,t);
+    chatHistory.push({ sender:m.sender, text:m.text, time:t });
+  });
 }
 
-// 🔐 Auth buttons
-document.getElementById("signInBtn").addEventListener("click", () => {
-  const email = document.getElementById("emailInput").value;
-  const pass = document.getElementById("passwordInput").value;
-  firebase.auth().signInWithEmailAndPassword(email, pass).catch(console.error);
-});
-
-document.getElementById("signUpBtn").addEventListener("click", () => {
-  const email = document.getElementById("emailInput").value;
-  const pass = document.getElementById("passwordInput").value;
-  firebase.auth().createUserWithEmailAndPassword(email, pass).catch(console.error);
-});
-
-document.getElementById("googleBtn").addEventListener("click", () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  firebase.auth().signInWithPopup(provider).catch(console.error);
-});
-
-document.getElementById("logoutBtn").addEventListener("click", () => {
-  firebase.auth().signOut().catch(console.error);
-});
+// Utils
+function getTime() { return new Date().toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" }); }
