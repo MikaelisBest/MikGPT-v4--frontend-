@@ -93,14 +93,16 @@ body {
   align-self: flex-end;
   background: #4a90e2;
   color: white;
-  border-bottom-right-radius: 0;
+  margin-right: 10px;
+  margin-left: auto;
 }
 
 .bot-message {
   align-self: flex-start;
-  background: #333;
-  color: #eaeaea;
-  border-bottom-left-radius: 0;
+  background: #333; /* or #333 for dark mode */
+  color: #eaeaea;         /* or #eaeaea for dark mode */
+  margin-left: 10px;
+  margin-right: auto;
 }
 
 .timestamp {
