@@ -1,36 +1,37 @@
+// Firebase init
 const firebaseConfig = {
   apiKey: "AIzaSyCcClI7IoSqBc1WAitxRO9OWgcDoyers4Y",
   authDomain: "mikgpt.firebaseapp.com",
   projectId: "mikgpt"
 };
 firebase.initializeApp(firebaseConfig);
-
-firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
+// UI Elements
 const authScreen = document.getElementById("auth-screen");
 const app = document.getElementById("app");
-const chatForm = document.getElementById("chat-form");
-const chatInput = document.getElementById("chat-input");
-const chatMessages = document.getElementById("chat-messages");
-const logoutBtn = document.getElementById("logout-btn");
-const newChatBtn = document.getElementById("new-chat-btn");
 
 document.getElementById("login-btn").onclick = () => {
   const email = document.getElementById("email").value;
   const pass = document.getElementById("password").value;
-  auth.signInWithEmailAndPassword(email, pass).catch(console.error);
+  auth.signInWithEmailAndPassword(email, pass)
+    .then(() => console.log("✅ Login success"))
+    .catch(err => alert("Login failed: " + err.message));
 };
 
 document.getElementById("signup-btn").onclick = () => {
   const email = document.getElementById("email").value;
   const pass = document.getElementById("password").value;
-  auth.createUserWithEmailAndPassword(email, pass).catch(console.error);
+  auth.createUserWithEmailAndPassword(email, pass)
+    .then(() => console.log("✅ Signup success"))
+    .catch(err => alert("Signup failed: " + err.message));
 };
 
 document.getElementById("google-login").onclick = () => {
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch(console.error);
+  auth.signInWithPopup(provider)
+    .then(() => console.log("✅ Google login success"))
+    .catch(err => alert("Google login failed: " + err.message));
 };
 
 auth.onAuthStateChanged(user => {
