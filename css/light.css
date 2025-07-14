@@ -19,6 +19,7 @@ body {
   display: flex;
   flex-direction: column;
   padding: 1rem;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .chat-header {
@@ -94,4 +95,8 @@ button[type="submit"] {
   color: #777;
   text-align: center;
   display: none;
+}
+
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
