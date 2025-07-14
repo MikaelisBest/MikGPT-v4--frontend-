@@ -6,12 +6,25 @@
   <title>MikGPT</title>
   <link rel="stylesheet" href="css/base.css" />
   <link id="themeStylesheet" rel="stylesheet" href="css/light.css" />
+  
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <div class="app">
+  <!-- 🔐 Auth UI -->
+  <div id="auth-section" class="auth-section hidden">
+    <h2>Login to MikGPT</h2>
+    <input type="email" id="emailInput" placeholder="Email" />
+    <input type="password" id="passwordInput" placeholder="Password" />
+    <button id="signInBtn">Log In</button>
+    <button id="signUpBtn">Sign Up</button>
+    <button id="googleBtn">Sign in with Google</button>
+  </div>
+
+  <!-- 🤖 Chat App UI -->
+  <div class="app hidden" id="chat-wrapper">
     <aside class="sidebar">
       <h2>MikGPT</h2>
       <button id="newChatBtn">+ New Chat</button>
@@ -21,24 +34,20 @@
       <button id="downloadChat">⬇️</button>
       <button id="logoutBtn">🚪</button>
     </aside>
+
     <main class="chat-area">
       <div id="chat-messages" class="chat-messages">
         <div id="loading-indicator" class="loading hidden">MikGPT is thinking...</div>
       </div>
+
       <form id="message-form" class="chat-form">
         <input type="text" id="message-input" placeholder="Type your message..." autocomplete="off" required />
         <button type="submit">➤</button>
       </form>
     </main>
   </div>
-  <div id="auth-section" class="auth-section hidden">
-    <h2>Login to MikGPT</h2>
-    <input type="email" id="emailInput" placeholder="Email" />
-    <input type="password" id="passwordInput" placeholder="Password" />
-    <button id="signInBtn">Log In</button>
-    <button id="signUpBtn">Sign Up</button>
-    <button id="googleBtn">Sign in with Google</button>
-  </div>
+
+  <!-- 🔧 Firebase Config -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCcClI7IoSqBc1WAitxRO9OWgcDoyers4Y",
@@ -50,6 +59,8 @@
     };
     firebase.initializeApp(firebaseConfig);
   </script>
+
+  <!-- 🚀 App Script -->
   <script type="module" src="js/script.js"></script>
 </body>
 </html>
