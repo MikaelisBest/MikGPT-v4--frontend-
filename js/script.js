@@ -1,4 +1,6 @@
-// 🌗 Theme toggle setup
+import { saveMessage, loadHistory, clearHistory } from "./chatHistory.js";
+
+// 🌗 Theme toggle
 const toggleBtn = document.getElementById("toggleMode");
 const themeLink = document.getElementById("themeStylesheet");
 
@@ -19,7 +21,7 @@ toggleBtn.addEventListener("click", () => {
 });
 
 // 🔁 Chat state
-let chatHistory = JSON.parse(localStorage.getItem("chatHistory")) || [];
+let chatHistory = loadHistory();
 
 // DOM refs
 const form = document.getElementById("message-form");
@@ -32,35 +34,74 @@ const promptBtns = document.querySelectorAll(".prompt-btn");
 
 const BACKEND_URL = "https://mikgpt-v4-backend-production.up.railway.app/api/chat";
 
-// Load history
-chatHistory.forEach(({ sender, text, time }) => addMessage(sender, text, time));
+// 🔐 Firebase Auth + Firestore Chat History
+firebase.auth().onAuthStateChanged(async (user) => {
+  const authSection = document.getElementById("auth-section");
+  const chatWrapper = document.getElementById("chat-wrapper");
 
-// Submit handler
+  if (user) {
+    const db = firebase.firestore();
+    const userId = user.uid;
+
+    window.db = db;
+    window.userId = userId;
+
+    authSection.style.display = "none";
+    chatWrapper.style.display = "flex";
+
+    const activeChatId = localStorage.getItem("activeChatId");
+    if (activeChatId) {
+      const snapshot = await db
+        .collection("users")
+        .doc(userId)
+        .collection("chats")
+        .doc(activeChatId)
+        .collection("messages")
+        .orderBy("timestamp")
+        .get();
+
+      messages.innerHTML = "";
+
+      snapshot.forEach((doc) => {
+        const msg = doc.data();
+        const time = msg.timestamp?.toDate?.().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }) || "⏱";
+        addMessage(msg.sender, msg.text, time);
+      });
+    }
+  } else {
+    chatWrapper.style.display = "none";
+    authSection.style.display = "flex";
+  }
+});
+
+// 📨 Submit message
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const userMessage = input.value.trim();
   if (!userMessage) return;
 
-  const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const time = getTime();
   addMessage("user", userMessage, time);
-  saveMessage("user", userMessage, time);
+  saveAndPush("user", userMessage, time);
   input.value = "";
-
   loader.style.display = "block";
 
   try {
     const res = await fetch(BACKEND_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: userMessage })
+      body: JSON.stringify({ message: userMessage }),
     });
 
     const data = await res.json();
 
     if (data.status === "success") {
-      const botTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      const botTime = getTime();
       addMessage("bot", data.response, botTime);
-      saveMessage("bot", data.response, botTime);
+      saveAndPush("bot", data.response, botTime);
     } else {
       addMessage("bot", "❌ Error: " + data.message);
     }
@@ -70,7 +111,7 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-// Add message to DOM
+// ➕ Add to DOM
 function addMessage(sender, text, time = "") {
   const container = document.createElement("div");
   container.classList.add("message-container");
@@ -105,13 +146,28 @@ function addMessage(sender, text, time = "") {
   messages.scrollTo({ top: messages.scrollHeight, behavior: "smooth" });
 }
 
-// Save chat
-function saveMessage(sender, text, time) {
+// 💾 Save to local + Firestore
+function saveAndPush(sender, text, time) {
   chatHistory.push({ sender, text, time });
   localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
+
+  if (window.db && window.userId) {
+    const activeChatId = localStorage.getItem("activeChatId") || "default";
+    window.db
+      .collection("users")
+      .doc(window.userId)
+      .collection("chats")
+      .doc(activeChatId)
+      .collection("messages")
+      .add({
+        sender,
+        text,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+  }
 }
 
-// Reset chat
+// 🔁 Reset
 resetBtn.addEventListener("click", () => {
   Array.from(messages.children).forEach((child) => {
     if (child.id !== "loading-indicator") child.remove();
@@ -119,10 +175,10 @@ resetBtn.addEventListener("click", () => {
   input.value = "";
   loader.style.display = "none";
   chatHistory = [];
-  localStorage.removeItem("chatHistory");
+  clearHistory();
 });
 
-// Download chat
+// 📥 Download
 downloadBtn.addEventListener("click", () => {
   let txt = "";
   chatHistory.forEach(({ sender, text, time }) => {
@@ -135,7 +191,7 @@ downloadBtn.addEventListener("click", () => {
   link.click();
 });
 
-// Suggested prompts
+// 🔘 Prompts
 promptBtns.forEach((btn) => {
   btn.addEventListener("click", () => {
     input.value = btn.textContent;
@@ -143,7 +199,7 @@ promptBtns.forEach((btn) => {
   });
 });
 
-// Enter key to send
+// ⌨️ Enter to send
 input.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
@@ -151,7 +207,12 @@ input.addEventListener("keydown", (e) => {
   }
 });
 
-// Basic Markdown
+// 🕐 Time
+function getTime() {
+  return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+// 📄 Markdown
 function formatMarkdown(text) {
   return text
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
@@ -163,20 +224,7 @@ function formatMarkdown(text) {
     .replace(/:D/g, "😄");
 }
 
-// 🔐 Firebase Auth UI Handling (basic)
-firebase.auth().onAuthStateChanged((user) => {
-  const authSection = document.getElementById("auth-section");
-  const chatWrapper = document.getElementById("chat-wrapper");
-
-  if (user) {
-    authSection.style.display = "none";
-    chatWrapper.style.display = "flex";
-  } else {
-    chatWrapper.style.display = "none";
-    authSection.style.display = "flex";
-  }
-});
-
+// 🔐 Auth Buttons
 document.getElementById("signInBtn").addEventListener("click", () => {
   const email = document.getElementById("emailInput").value;
   const pass = document.getElementById("passwordInput").value;

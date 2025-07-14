@@ -282,3 +282,11 @@ html.transitioning {
   background: #3a7bd5;
 }
 
+#chatSelector {
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background-color: #333;
+  color: #eee;
+  border: 1px solid #555;
+}
