@@ -188,9 +188,6 @@ ui.download.onclick = () => {
 
 // 💬 Show message in UI
 function showMessage(sender, text, time) {
-  chatHistory.push({ sender, text, time });
-  saveMessage(sender, text, time);
-
   const div = document.createElement("div");
   div.classList.add("message-container", sender === "user" ? "user" : "bot");
 
@@ -203,7 +200,13 @@ function showMessage(sender, text, time) {
   stamp.textContent = time;
 
   div.append(bubble, stamp);
-  ui.window.insertBefore(div, ui.loader);
+
+  if (ui.loader && ui.loader.parentNode === ui.window) {
+    ui.window.insertBefore(div, ui.loader);
+  } else {
+    ui.window.appendChild(div);
+  }
+
   ui.window.scrollTop = ui.window.scrollHeight;
 }
 
