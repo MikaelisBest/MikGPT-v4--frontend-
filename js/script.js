@@ -97,3 +97,18 @@ function renderTyping(sender,msg,time){
     else { clearInterval(iv); ui.loader.classList.add('hidden'); }
   },15);
 }
+
+const toggleBtn = document.getElementById("toggleMode");
+const themeLink = document.getElementById("themeStylesheet");
+
+const savedTheme = localStorage.getItem("theme") || "light";
+themeLink.href = `css/${savedTheme}.css`;
+toggleBtn.textContent = savedTheme === "dark" ? "☀️" : "🌙";
+
+toggleBtn.addEventListener("click", () => {
+  const current = themeLink.href.includes("dark") ? "dark" : "light";
+  const next = current === "dark" ? "light" : "dark";
+  themeLink.href = `css/${next}.css`;
+  localStorage.setItem("theme", next);
+  toggleBtn.textContent = next === "dark" ? "☀️" : "🌙";
+});
