@@ -2,17 +2,28 @@
 const toggleBtn = document.getElementById("toggleMode");
 const themeLink = document.getElementById("themeStylesheet");
 
+// saved theme from localStorage
 let savedTheme = localStorage.getItem("theme") || "light";
 themeLink.href = `css/${savedTheme}.css`;
 toggleBtn.textContent = savedTheme === "dark" ? "☀️" : "🌙";
 
+// 🌟 Smooth transition with blur+scale
 toggleBtn.addEventListener("click", () => {
-    const current = themeLink.href.includes("dark") ? "dark" : "light";
-    const next = current === "dark" ? "light" : "dark";
+    document.documentElement.classList.add("transitioning");
 
-    themeLink.href = `css/${next}.css`;
-    localStorage.setItem("theme", next);
-    toggleBtn.textContent = next === "dark" ? "☀️" : "🌙";
+    setTimeout(() => {
+        const current = themeLink.href.includes("dark") ? "dark" : "light";
+        const next = current === "dark" ? "light" : "dark";
+
+        themeLink.href = `css/${next}.css`;
+        localStorage.setItem("theme", next);
+        toggleBtn.textContent = next === "dark" ? "☀️" : "🌙";
+
+        // remove transition effect after 300ms
+        setTimeout(() => {
+            document.documentElement.classList.remove("transitioning");
+        }, 300);
+    }, 50);
 });
 
 // 💬 Chat logic below — already working 🔥
