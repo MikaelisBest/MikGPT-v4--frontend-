@@ -90,31 +90,31 @@ body {
 
 .message-container {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  justify-content: flex-start;
 }
 
 .message-container.user {
-  align-items: flex-end;
+  justify-content: flex-end;
 }
 
-.user-message {
-  background: #4a90e2;
-  color: white;
+.message {
   padding: 0.8rem 1rem;
   border-radius: 10px;
   max-width: 70%;
   word-wrap: break-word;
+  position: relative;
+}
+
+/* Keep these for styling */
+.user-message {
+  background: #4a90e2;
+  color: white;
 }
 
 .bot-message {
-  align-self: flex-start;
   background: #e5e5e5; /* or #333 for dark mode */
-  color: #000;         /* or #eaeaea for dark mode */
-  margin-left: 10px;
-  margin-right: auto;
+  color: black;        /* or #eaeaea for dark mode */
 }
-
 
 .timestamp {
   font-size: 0.7rem;
