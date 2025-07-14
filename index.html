@@ -1,89 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>MikGPT-V4</title>
   <link id="themeStylesheet" rel="stylesheet" href="css/light.css" />
   <link rel="icon" href="favicon.ico" />
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f0f0f0;
-      color: #222;
-    }
-    .hidden { display: none !important; }
-    .chat-wrapper {
-      max-width: 700px;
-      margin: auto;
-      padding: 1rem;
-      background: #fff;
-      border-radius: 12px;
-      margin-top: 2rem;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .top-controls {
-      display: flex;
-      gap: 0.5rem;
-    }
-    button {
-      padding: 0.4rem 0.8rem;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-    }
-    #chat-messages {
-      max-height: 65vh;
-      overflow-y: auto;
-      margin: 1rem 0;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    .message-container {
-      display: flex;
-      flex-direction: column;
-      max-width: 80%;
-    }
-    .user {
-      align-self: flex-end;
-      background: #4a90e2;
-      color: white;
-      padding: 0.6rem;
-      border-radius: 10px;
-    }
-    .bot {
-      align-self: flex-start;
-      background: #e5e5e5;
-      padding: 0.6rem;
-      border-radius: 10px;
-    }
-    .timestamp {
-      font-size: 0.7rem;
-      color: #666;
-      text-align: right;
-      margin-top: 2px;
-    }
-    form {
-      display: flex;
-      gap: 0.5rem;
-    }
-    input[type="text"] {
-      flex: 1;
-      padding: 0.6rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
-    }
-  </style>
-
-  <!-- Firebase -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -99,45 +21,42 @@
     firebase.initializeApp(firebaseConfig);
   </script>
 </head>
-
 <body>
-  <!-- 🔐 Auth -->
-  <div id="auth-section" class="chat-wrapper">
-    <h2>MikGPT Login</h2>
-    <input type="email" id="emailInput" placeholder="Email" />
-    <input type="password" id="passwordInput" placeholder="Password" />
-    <div style="margin-top: 0.5rem;">
+  <!-- AUTH -->
+  <div id="auth-section" class="overlay">
+    <div class="auth-card">
+      <h2>MikGPT Login</h2>
+      <input id="emailInput" type="email" placeholder="Email" />
+      <input id="passwordInput" type="password" placeholder="Password" />
       <button id="signInBtn">Log In</button>
       <button id="signUpBtn">Sign Up</button>
       <button id="googleBtn">Google Login</button>
     </div>
   </div>
 
-  <!-- 🤖 Chat UI -->
-  <div id="chat-wrapper" class="chat-wrapper hidden">
-    <header>
-      <h1>MikGPT</h1>
-      <div class="top-controls">
-        <button id="newChatBtn">➕ New Chat</button>
-        <select id="chatSelector"></select>
-        <button id="toggleMode">🌙</button>
-        <button id="resetChat">♻️</button>
-        <button id="downloadChat">⬇️</button>
-        <button id="logoutBtn">🚪</button>
+  <!-- CHAT -->
+  <div id="chat-wrapper" class="chat-container hidden">
+    <aside class="sidebar">
+      <button id="newChatBtn">➕ New Chat</button>
+      <input id="chatNameInput" placeholder="Name your chat..." />
+      <select id="chatSelector"></select>
+      <button id="resetChat">♻️ Reset</button>
+      <button id="downloadChat">⬇️ Download</button>
+      <button id="toggleMode">🌙</button>
+      <button id="logoutBtn">🚪 Logout</button>
+    </aside>
+
+    <main class="chat-main">
+      <div id="chat-messages" class="chat-window">
+        <div id="loading-indicator" class="loading hidden">MikGPT is thinking...</div>
       </div>
-    </header>
-
-    <div id="chat-messages">
-      <div id="loading-indicator" class="timestamp hidden">MikGPT is thinking...</div>
-    </div>
-
-    <form id="message-form">
-      <input type="text" id="message-input" placeholder="Ask me anything..." autocomplete="off" />
-      <button type="submit">➤</button>
-    </form>
+      <form id="message-form" class="chat-input">
+        <input id="message-input" type="text" placeholder="Ask me anything..." autocomplete="off" />
+        <button type="submit">➤</button>
+      </form>
+    </main>
   </div>
 
-  <!-- 🔁 Script -->
   <script type="module" src="js/script.js"></script>
 </body>
 </html>
