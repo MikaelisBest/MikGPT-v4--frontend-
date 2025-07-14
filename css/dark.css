@@ -98,6 +98,7 @@ body {
 
 .message-container.user {
   align-items: flex-end;
+  text-align: right; /* ✅ Makes text & timestamp align right */
 }
 
 .message {
@@ -112,12 +113,14 @@ body {
 .user-message {
   background: #4a90e2;
   color: white;
+  align-self: flex-end; /* ✅ Ensures bubble sticks right */
 }
 
 /* Bot bubble (left side) */
 .bot-message {
-  background: #e5e5e5; /* or #333 for dark */
-  color: #000;          /* or #eaeaea for dark */
+  background: #333; /* or #333 in dark.css */
+  color: #eaeaea;         /* or #eaeaea in dark.css */
+  align-self: flex-start; /* Just to be explicit */
 }
 
 .timestamp {
