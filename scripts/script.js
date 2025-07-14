@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // ==== FIREBASE CONFIG ====
   const firebaseConfig = {
     apiKey: "AIzaSyCcClI7IoSqBc1WAitxRO9OWgcDoyers4Y",
     authDomain: "mikgpt.firebaseapp.com",
@@ -8,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
 
-  // ==== ELEMENTS ====
+  // Elements
   const authScreen = document.getElementById("auth-screen");
   const app = document.getElementById("app");
   const chatForm = document.getElementById("chat-form");
@@ -16,7 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatMessages = document.getElementById("chat-messages");
   const logoutBtn = document.getElementById("logout-btn");
   const newChatBtn = document.getElementById("new-chat-btn");
-
   const loginBtn = document.getElementById("login-btn");
   const signupBtn = document.getElementById("signup-btn");
   const googleBtn = document.getElementById("google-login");
@@ -45,49 +43,48 @@ document.addEventListener("DOMContentLoaded", () => {
     if (user) {
       authScreen.style.display = "none";
       app.style.display = "flex";
-      initChat(); // 🔥 Init chat AFTER login
     } else {
       authScreen.style.display = "flex";
       app.style.display = "none";
     }
   });
 
-  // ==== INIT CHAT ====
-  function initChat() {
-    chatForm.onsubmit = async (e) => {
-      e.preventDefault();
-      const msg = chatInput.value.trim();
-      if (!msg) return;
+  // ✅ FIXED FORM HANDLING
+  chatForm.addEventListener("submit", async (e) => {
+    e.preventDefault(); // ❗ Stops refresh
 
-      addMessage("user", msg);
-      chatInput.value = "";
+    const msg = chatInput.value.trim();
+    if (!msg) return;
 
-      try {
-        const res = await fetch("https://mikgpt-v4-backend-production.up.railway.app/api", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            message: msg,
-            uid: auth.currentUser?.uid || "anon"
-          })
-        });
-        const data = await res.json();
-        typeMessage("bot", data.reply || "No response.");
-      } catch (err) {
-        console.error(err);
-        typeMessage("bot", "Error contacting MikGPT backend.");
-      }
-    };
+    addMessage("user", msg);
+    chatInput.value = "";
 
-    newChatBtn.onclick = () => {
-      chatMessages.innerHTML = "";
-      document.getElementById("current-chat-title").textContent = "New Chat";
-    };
+    try {
+      const res = await fetch("https://mikgpt-v4-backend-production.up.railway.app/api", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: msg,
+          uid: auth.currentUser?.uid || "anon"
+        })
+      });
 
-    logoutBtn.onclick = () => auth.signOut();
-  }
+      const data = await res.json();
+      typeMessage("bot", data.reply || "No response.");
+    } catch (err) {
+      console.error(err);
+      typeMessage("bot", "⚠️ Could not reach MikGPT backend.");
+    }
+  });
 
-  // ==== CHAT BUBBLES ====
+  newChatBtn.onclick = () => {
+    chatMessages.innerHTML = "";
+    document.getElementById("current-chat-title").textContent = "New Chat";
+  };
+
+  logoutBtn.onclick = () => auth.signOut();
+
+  // Bubbles
   function addMessage(sender, text) {
     const msg = document.createElement("div");
     msg.className = `message ${sender}`;
