@@ -115,40 +115,49 @@ button, input {
 }
 
 /* ==== Message Styling ==== */
-.message-container.user {
+.message-container {
   display: flex;
-  justify-content: flex-end;
+  margin-bottom: 1rem;
+  width: 100%;
 }
 
 .message {
-  padding: 0.75rem 1rem;
+  padding: 0.6rem 1rem;
   border-radius: 12px;
   font-size: 1rem;
+  word-wrap: break-word;
+  max-width: 75%;
   line-height: 1.4;
-  word-break: break-word;
-  box-shadow: var(--shadow);
-}
-
-.user .message {
-  background: #cceeff; /* light blue for light mode */
-  align-self: flex-end;
-  border-radius: 10px 10px 0 10px;
-  margin-left: auto;
-  margin-right: 0;
-}
-
-.bot .message {
-  background: var(--bot-bubble);
-  color: var(--bot-text);
-  align-self: flex-start;
 }
 
 .timestamp {
   font-size: 0.75rem;
-  margin-top: 0.3rem;
-  color: var(--timestamp);
-  align-self: flex-end;
-  opacity: 0.6;
+  color: gray;
+  margin-top: 0.25rem;
+}
+
+/* USER Message Styles */
+.message-container.user {
+  justify-content: flex-end;
+}
+
+.user .message {
+  background: #b3e5fc; /* Light blue */
+  color: #222; /* Darker text */
+  border-radius: 14px 14px 4px 14px;
+  margin-right: 0.5rem;
+}
+
+/* BOT Message Styles */
+.message-container.bot {
+  justify-content: flex-start;
+}
+
+.bot .message {
+  background: #f1f1f1; /* Light gray */
+  color: #333;
+  border-radius: 14px 14px 14px 4px;
+  margin-left: 0.5rem;
 }
 
 /* ==== Auth Section ==== */
