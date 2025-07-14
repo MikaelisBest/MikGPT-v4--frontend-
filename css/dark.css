@@ -68,58 +68,52 @@ body {
 .chat-messages {
   flex: 1;
   overflow-y: auto;
-  padding-right: 4px;
+  padding: 0 0.5rem; /* Smaller horizontal padding */
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
-  scrollbar-width: thin;
 }
 
+/* Container holds the bubble and timestamp */
 .message-container {
   display: flex;
   flex-direction: column;
-  max-width: 85%;
+  width: 100%;
 }
 
-.message {
-  align-self: flex-end;
-  padding: 0.8rem 1rem;
-  border-radius: 10px;
-  word-wrap: break-word;
-  position: relative;
-  line-height: 1.4;
+/* Align user messages to the right */
+.message-container.user {
+  align-items: flex-end;
 }
 
-.message-container {
-  display: flex;
-  flex-direction: column;
+/* Align bot messages to the left (default) */
+.message-container.bot {
   align-items: flex-start;
 }
 
-.message-container.user {
-  align-items: flex-end;
-  text-align: right; /* ✅ Makes text & timestamp align right */
+/* Message bubble styling */
+.message {
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  max-width: 75%;
+  word-wrap: break-word;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.message-container.user {
-  align-items: flex-end;
-  text-align: right;
-  width: 100%;               /* take full row space */
-}
-
+/* 💬 User bubble (right side) */
 .user-message {
   background: #4a90e2;
   color: white;
-  align-self: flex-end;
-  margin-left: auto;         /* ✅ push bubble all the way right */
+  margin-left: auto;  /* 💯 pushes it all the way right */
 }
 
-/* Bot bubble (left side) */
+/* 🤖 Bot bubble (left side) */
 .bot-message {
-  background: #333; /* or #333 in dark.css */
-  color: #eaeaea;         /* or #eaeaea in dark.css */
-  align-self: flex-start; /* Just to be explicit */
+  background: #e5e5e5; /* or #333 in dark mode */
+  color: #000;         /* or #eaeaea in dark mode */
+  margin-right: auto;  /* just in case */
 }
+
 
 .timestamp {
   font-size: 0.7rem;
