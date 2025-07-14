@@ -21,7 +21,10 @@ toggleBtn.addEventListener("click", () => {
 });
 
 // 🔁 Chat state
-let chatHistory = loadHistory();
+let chatHistory = [];
+let userId = null;
+let db = null;
+let activeChatId = null;
 
 // DOM refs
 const form = document.getElementById("message-form");
@@ -31,45 +34,28 @@ const loader = document.getElementById("loading-indicator");
 const resetBtn = document.getElementById("resetChat");
 const downloadBtn = document.getElementById("downloadChat");
 const promptBtns = document.querySelectorAll(".prompt-btn");
+const chatSelector = document.getElementById("chatSelector");
+const newChatBtn = document.getElementById("newChat");
 
 const BACKEND_URL = "https://mikgpt-v4-backend-production.up.railway.app/api/chat";
 
-// 🔐 Firebase Auth + Firestore Chat History
+// 🔐 Firebase Auth + Firestore Chat Loading
 firebase.auth().onAuthStateChanged(async (user) => {
   const authSection = document.getElementById("auth-section");
   const chatWrapper = document.getElementById("chat-wrapper");
 
   if (user) {
-    const db = firebase.firestore();
-    const userId = user.uid;
-
-    window.db = db;
-    window.userId = userId;
+    db = firebase.firestore();
+    userId = user.uid;
 
     authSection.style.display = "none";
     chatWrapper.style.display = "flex";
 
-    const activeChatId = localStorage.getItem("activeChatId");
-    if (activeChatId) {
-      const snapshot = await db
-        .collection("users")
-        .doc(userId)
-        .collection("chats")
-        .doc(activeChatId)
-        .collection("messages")
-        .orderBy("timestamp")
-        .get();
-
-      messages.innerHTML = "";
-
-      snapshot.forEach((doc) => {
-        const msg = doc.data();
-        const time = msg.timestamp?.toDate?.().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }) || "⏱";
-        addMessage(msg.sender, msg.text, time);
-      });
+    await loadChatSessions();
+    if (!activeChatId) {
+      startNewChat();
+    } else {
+      loadChatFromFirestore(activeChatId);
     }
   } else {
     chatWrapper.style.display = "none";
@@ -77,7 +63,59 @@ firebase.auth().onAuthStateChanged(async (user) => {
   }
 });
 
-// 📨 Submit message
+// 🆕 New Chat
+newChatBtn.addEventListener("click", startNewChat);
+
+async function startNewChat() {
+  if (!db || !userId) return;
+
+  const newChatRef = await db.collection("users").doc(userId).collection("chats").add({
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+  });
+
+  activeChatId = newChatRef.id;
+  localStorage.setItem("activeChatId", activeChatId);
+  chatHistory = [];
+  clearMessagesFromDOM();
+  await loadChatSessions();
+}
+
+// 🔄 Load Chat Sessions
+async function loadChatSessions() {
+  chatSelector.innerHTML = "";
+  const snapshot = await db.collection("users").doc(userId).collection("chats").orderBy("createdAt").get();
+
+  snapshot.forEach(doc => {
+    const option = document.createElement("option");
+    option.value = doc.id;
+    option.textContent = `Chat ${doc.id.substring(0, 5)}`;
+    if (doc.id === activeChatId) option.selected = true;
+    chatSelector.appendChild(option);
+  });
+}
+
+// 🧠 Switch between chat sessions
+chatSelector.addEventListener("change", async (e) => {
+  activeChatId = e.target.value;
+  localStorage.setItem("activeChatId", activeChatId);
+  chatHistory = [];
+  clearMessagesFromDOM();
+  await loadChatFromFirestore(activeChatId);
+});
+
+async function loadChatFromFirestore(chatId) {
+  const snapshot = await db.collection("users").doc(userId).collection("chats").doc(chatId).collection("messages").orderBy("timestamp").get();
+  messages.innerHTML = "";
+
+  snapshot.forEach(doc => {
+    const msg = doc.data();
+    const time = msg.timestamp?.toDate?.().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) || "⏱";
+    addMessage(msg.sender, msg.text, time);
+    chatHistory.push({ sender: msg.sender, text: msg.text, time });
+  });
+}
+
+// 📨 Form submit
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const userMessage = input.value.trim();
@@ -146,16 +184,14 @@ function addMessage(sender, text, time = "") {
   messages.scrollTo({ top: messages.scrollHeight, behavior: "smooth" });
 }
 
-// 💾 Save to local + Firestore
+// 💾 Save message
 function saveAndPush(sender, text, time) {
   chatHistory.push({ sender, text, time });
   localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
 
-  if (window.db && window.userId) {
-    const activeChatId = localStorage.getItem("activeChatId") || "default";
-    window.db
-      .collection("users")
-      .doc(window.userId)
+  if (db && userId && activeChatId) {
+    db.collection("users")
+      .doc(userId)
       .collection("chats")
       .doc(activeChatId)
       .collection("messages")
@@ -167,16 +203,20 @@ function saveAndPush(sender, text, time) {
   }
 }
 
-// 🔁 Reset
+// 🧹 Reset
 resetBtn.addEventListener("click", () => {
-  Array.from(messages.children).forEach((child) => {
-    if (child.id !== "loading-indicator") child.remove();
-  });
+  clearMessagesFromDOM();
   input.value = "";
   loader.style.display = "none";
   chatHistory = [];
   clearHistory();
 });
+
+function clearMessagesFromDOM() {
+  Array.from(messages.children).forEach((child) => {
+    if (child.id !== "loading-indicator") child.remove();
+  });
+}
 
 // 📥 Download
 downloadBtn.addEventListener("click", () => {
@@ -224,7 +264,7 @@ function formatMarkdown(text) {
     .replace(/:D/g, "😄");
 }
 
-// 🔐 Auth Buttons
+// 🔐 Auth buttons
 document.getElementById("signInBtn").addEventListener("click", () => {
   const email = document.getElementById("emailInput").value;
   const pass = document.getElementById("passwordInput").value;
