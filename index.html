@@ -4,20 +4,32 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MikGPT</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Style -->
   <link rel="stylesheet" href="styles/style.css" />
+
+  <!-- Firebase -->
   <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+  <!-- JS -->
   <script defer src="scripts/script.js"></script>
 </head>
+
 <body>
   <!-- Auth Screen -->
   <div id="auth-screen" class="auth-screen">
-    <h1>MikGPT</h1>
+    <h1>MikGPT Login</h1>
     <input type="email" id="email" placeholder="Email" />
     <input type="password" id="password" placeholder="Password" />
     <button id="login-btn">Login</button>
     <button id="signup-btn">Sign Up</button>
-    <button id="google-login">Login with Google</button>
+    <button id="google-login">Continue with Google</button>
   </div>
 
   <!-- Chat App -->

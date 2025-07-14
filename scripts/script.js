@@ -1,14 +1,12 @@
-// ==== CONFIG ====
 const firebaseConfig = {
   apiKey: "AIzaSyCcClI7IoSqBc1WAitxRO9OWgcDoyers4Y",
   authDomain: "mikgpt.firebaseapp.com",
-  projectId: "mikgpt",
+  projectId: "mikgpt"
 };
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
-// ==== ELEMENTS ====
 const authScreen = document.getElementById("auth-screen");
 const app = document.getElementById("app");
 const chatForm = document.getElementById("chat-form");
@@ -44,7 +42,6 @@ auth.onAuthStateChanged(user => {
   }
 });
 
-// ==== CHAT ====
 chatForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const msg = chatInput.value.trim();

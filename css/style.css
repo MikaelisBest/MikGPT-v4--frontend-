@@ -16,11 +16,11 @@
 * {
   box-sizing: border-box;
   transition: all var(--transition);
+  font-family: 'Inter', sans-serif;
 }
 
 body {
   margin: 0;
-  font-family: "Segoe UI", sans-serif;
   background: var(--bg);
   color: var(--text);
   height: 100vh;
@@ -34,6 +34,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  padding: 2rem;
+  max-width: 400px;
+  width: 100%;
 }
 
 .auth-screen input,
@@ -55,7 +58,7 @@ body {
   background: var(--btn-hover);
 }
 
-/* Layout */
+/* App Layout */
 #app {
   width: 100%;
   display: flex;
