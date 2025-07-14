@@ -88,6 +88,16 @@ body {
   line-height: 1.4;
 }
 
+.message-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.message-container.user {
+  align-items: flex-end;
+}
+
 .user-message {
   align-self: flex-end;
   margin-left: auto;
