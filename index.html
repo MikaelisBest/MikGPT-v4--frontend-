@@ -1,14 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MikGPT-V4</title>
-  <link id="themeStylesheet" rel="stylesheet" href="css/light.css" />
   <link rel="icon" href="favicon.ico" />
-  <!-- Firebase SDKs -->
+  <link rel="stylesheet" href="css/base.css" />
+  <link id="themeStylesheet" rel="stylesheet" href="css/light.css" />
+
+
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCcClI7IoSqBc1WAitxRO9OWgcDoyers4Y",
@@ -22,36 +27,38 @@
   </script>
 </head>
 <body>
-  <!-- AUTH -->
-  <div id="auth-section" class="overlay">
-    <div class="auth-card">
-      <h2>MikGPT Login</h2>
-      <input id="emailInput" type="email" placeholder="Email" />
-      <input id="passwordInput" type="password" placeholder="Password" />
-      <button id="signInBtn">Log In</button>
-      <button id="signUpBtn">Sign Up</button>
-      <button id="googleBtn">Google Login</button>
-    </div>
-  </div>
-
-  <!-- CHAT -->
-  <div id="chat-wrapper" class="chat-container hidden">
+  <div class="app">
+    <!-- Sidebar -->
     <aside class="sidebar">
-      <button id="newChatBtn">➕ New Chat</button>
-      <input id="chatNameInput" placeholder="Name your chat..." />
-      <select id="chatSelector"></select>
-      <button id="resetChat">♻️ Reset</button>
-      <button id="downloadChat">⬇️ Download</button>
-      <button id="toggleMode">🌙</button>
-      <button id="logoutBtn">🚪 Logout</button>
+      <h1 class="logo">MikGPT</h1>
+      <button id="newChatBtn" class="new-chat">+ New Chat</button>
+      <select id="chatSelector" class="chat-selector"></select>
+      <div class="spacer"></div>
+      <button id="toggleMode" title="Theme">🌙</button>
+      <button id="resetChat" title="Reset">♻️</button>
+      <button id="downloadChat" title="Download">⬇️</button>
+      <button id="logoutBtn" title="Logout">🚪</button>
     </aside>
 
-    <main class="chat-main">
-      <div id="chat-messages" class="chat-window">
-        <div id="loading-indicator" class="loading hidden">MikGPT is thinking...</div>
+    <!-- Auth/Login UI -->
+    <div id="auth-section" class="auth hidden">
+      <h2>Login to MikGPT</h2>
+      <input type="email" id="emailInput" placeholder="Email" />
+      <input type="password" id="passwordInput" placeholder="Password" />
+      <div class="auth-buttons">
+        <button id="signInBtn">Log In</button>
+        <button id="signUpBtn">Sign Up</button>
+        <button id="googleBtn">Sign in with Google</button>
       </div>
-      <form id="message-form" class="chat-input">
-        <input id="message-input" type="text" placeholder="Ask me anything..." autocomplete="off" />
+    </div>
+
+    <!-- Main Chat UI -->
+    <main class="chat-wrapper hidden" id="chat-wrapper">
+      <div id="chat-messages" class="chat-messages">
+        <div id="loading-indicator" class="loading hidden">MikGPT is typing...</div>
+      </div>
+      <form id="message-form" class="chat-form">
+        <input type="text" id="message-input" placeholder="Type your message..." autocomplete="off" required />
         <button type="submit">➤</button>
       </form>
     </main>

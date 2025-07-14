@@ -11,7 +11,6 @@ const ui = {
   logout: document.getElementById("logoutBtn"),
   toggle: document.getElementById("toggleMode"),
   newChat: document.getElementById("newChatBtn"),
-  chatName: document.getElementById("chatNameInput"),
   selector: document.getElementById("chatSelector"),
   reset: document.getElementById("resetChat"),
   download: document.getElementById("downloadChat"),
@@ -21,22 +20,18 @@ const ui = {
   loader: document.getElementById("loading-indicator")
 };
 
-const BACKEND_URL = "https://mikgpt-v4-backend-production.up.railway.app/api/chat";
-
-let db, userId, activeChatId = localStorage.getItem("activeChatId");
-
+let db, userId, activeChatId;
 let chatHistory = [];
 
-// Theme toggle
 ui.toggle.addEventListener("click", () => {
-  const cur = localStorage.getItem("theme") || "light";
-  const nxt = cur==="dark"? "light":"dark";
-  document.getElementById("themeStylesheet").href = `css/${nxt}.css`;
-  localStorage.setItem("theme", nxt);
-  ui.toggle.textContent = nxt==="dark"?"☀️":"🌙";
+  const current = localStorage.getItem("theme") || "light";
+  const next = current === "dark" ? "light" : "dark";
+  document.getElementById("themeStylesheet").href = `css/${next}.css`;
+  localStorage.setItem("theme", next);
+  ui.toggle.textContent = next === "dark" ? "☀️" : "🌙";
 });
 
-// Auth state
+// 🧠 Auth + Chat Loader
 firebase.auth().onAuthStateChanged(async user => {
   if (user) {
     ui.auth.classList.add("hidden");
@@ -45,136 +40,180 @@ firebase.auth().onAuthStateChanged(async user => {
     db = firebase.firestore();
     userId = user.uid;
 
-    await loadSessions();
-    if(!activeChatId) createNewChat();
-    else loadMessages(activeChatId);
+    await loadChatSessions();
 
+    const savedId = localStorage.getItem("activeChatId");
+    if (!savedId) startNewChat();
+    else {
+      activeChatId = savedId;
+      await loadFromFirestore(activeChatId);
+    }
   } else {
     ui.chatW.classList.add("hidden");
     ui.auth.classList.remove("hidden");
   }
 });
 
-// Auth handlers
+// Auth buttons
 ui.signIn.onclick = () => firebase.auth().signInWithEmailAndPassword(ui.email.value, ui.pass.value).catch(alert);
 ui.signUp.onclick = () => firebase.auth().createUserWithEmailAndPassword(ui.email.value, ui.pass.value).catch(alert);
 ui.google.onclick = () => firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(alert);
 ui.logout.onclick = () => firebase.auth().signOut();
 
-// New chat with name
-ui.newChat.onclick = createNewChat;
-async function createNewChat() {
-  const name = ui.chatName.value.trim() || "New Chat";
+// ➕ New Chat
+ui.newChat.onclick = async () => {
+  const name = prompt("Name this chat:");
+  if (!name) return;
+
   const ref = await db.collection("users").doc(userId).collection("chats").add({
-    name, createdAt: Date.now()
+    name,
+    createdAt: Date.now()
   });
+
   activeChatId = ref.id;
   localStorage.setItem("activeChatId", activeChatId);
   chatHistory = [];
   ui.window.innerHTML = "";
-  await loadSessions();
-}
+  await loadChatSessions();
+};
 
-// Load sessions
-async function loadSessions() {
+// 🔁 Load Chat Sessions
+async function loadChatSessions() {
   ui.selector.innerHTML = "";
-  const snap = await db.collection("users").doc(userId).collection("chats").orderBy("createdAt","asc").get();
-  snap.forEach(d=>{
-    const o = document.createElement("option");
-    o.value = d.id;
-    o.textContent = d.data().name;
-    if(d.id===activeChatId) o.selected=true;
-    ui.selector.appendChild(o);
+  const snap = await db.collection("users").doc(userId).collection("chats").orderBy("createdAt", "asc").get();
+
+  snap.forEach(d => {
+    const opt = document.createElement("option");
+    opt.value = d.id;
+    opt.textContent = d.data().name || ("Chat " + d.id.slice(-5));
+    if (d.id === localStorage.getItem("activeChatId")) opt.selected = true;
+    ui.selector.appendChild(opt);
   });
 }
 
-// Selector change
-ui.selector.onchange = async ()=>{
+// 📁 Switch Chat
+ui.selector.onchange = async () => {
   activeChatId = ui.selector.value;
   localStorage.setItem("activeChatId", activeChatId);
   chatHistory = [];
   ui.window.innerHTML = "";
-  await loadMessages(activeChatId);
+  await loadFromFirestore(activeChatId);
 };
 
-// Submit message
-ui.form.onsubmit = async e=>{
+// 📨 Form Submission
+ui.form.onsubmit = async e => {
   e.preventDefault();
-  const txt = ui.input.value.trim();
-  if(!txt) return;
-  const time = new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
-  typeMessage("user", txt, time);
-  await saveMsg("user", txt, time);
-  ui.input.value="";
+  const text = ui.input.value.trim();
+  if (!text) return;
+
+  const time = getTime();
+  showMessage("user", text, time);
+  saveAndPush("user", text, time);
+  ui.input.value = "";
   ui.loader.classList.remove("hidden");
 
   try {
-    const res = await fetch(BACKEND_URL, {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({message:txt})
+    const res = await fetch("https://mikgpt-v4-backend-production.up.railway.app/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text })
     });
+
     const data = await res.json();
-    const rsp = data.status==="success"? data.response : "❌ "+data.message;
-    typeMessage("bot", rsp, getTime());
-    await saveMsg("bot", rsp, getTime());
+    const reply = data.status === "success" ? data.response : "❌ " + data.message;
+    showMessage("bot", reply, getTime());
+    saveAndPush("bot", reply, getTime());
   } catch {
-    typeMessage("bot", "🚫 Connection failed.", getTime());
-    await saveMsg("bot", "🚫 Connection failed.", getTime());
-  } finally {
-    ui.loader.classList.add("hidden");
+    showMessage("bot", "🚫 Backend error", getTime());
   }
 };
 
-// Reset and download
-ui.reset.onclick = ()=>{ ui.window.innerHTML=""; chatHistory=[]; clearHistory(); };
-ui.download.onclick = ()=>{
-  const blob = new Blob([chatHistory.map(c=>`[${c.time}] ${c.sender.toUpperCase()}: ${c.text}`).join("\n")],{type:"text/plain"});
-  const a = document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="chat.txt"; a.click();
-};
+// 💬 Display Message
+function showMessage(sender, text, time) {
+  const div = document.createElement("div");
+  div.classList.add("message-container", sender === "user" ? "user" : "bot");
 
-// Letter-by-letter typing
-async function typeMessage(sender, text, time) {
-  const tm = document.createElement("div");
-  tm.className = "message-container "+sender;
-  const msgDiv = document.createElement("div");
-  msgDiv.className="message";
-  tm.append(msgDiv);
+  const bubble = document.createElement("div");
+  bubble.classList.add("message");
 
   const stamp = document.createElement("div");
-  stamp.className="timestamp";
+  stamp.classList.add("timestamp");
   stamp.textContent = time;
 
-  ui.loader.before(tm);
-  for(let i=0;i<text.length;i++){
-    msgDiv.innerHTML += text.charAt(i).replace(" ","&nbsp;");
-    ui.window.scrollTop = ui.window.scrollHeight;
-    await new Promise(r=>setTimeout(r,10));
+  if (sender === "bot") {
+    let i = 0;
+    const typing = setInterval(() => {
+      if (i < text.length) {
+        bubble.innerHTML += format(text[i++]);
+        ui.window.scrollTop = ui.window.scrollHeight;
+      } else {
+        clearInterval(typing);
+        ui.loader.classList.add("hidden");
+      }
+    }, 10);
+  } else {
+    bubble.innerHTML = format(text);
   }
-  tm.append(stamp);
-  chatHistory.push({sender,text,time});
-  saveMessage(sender,text,time);
+
+  div.append(bubble, stamp);
+  ui.window.insertBefore(div, ui.loader);
+  ui.window.scrollTop = ui.window.scrollHeight;
 }
 
-// Save to Firestore
-async function saveMsg(sender,text,time){
-  if(db && userId && activeChatId){
-    await db.collection("users").doc(userId).collection("chats").doc(activeChatId).collection("messages")
-      .add({sender,text,time,timestamp:Date.now()});
+// 💾 Save to Firestore
+function saveAndPush(sender, text, time) {
+  chatHistory.push({ sender, text, time });
+  saveMessage(sender, text, time);
+
+  if (db && userId && activeChatId) {
+    db.collection("users").doc(userId).collection("chats")
+      .doc(activeChatId).collection("messages")
+      .add({ sender, text, time, timestamp: Date.now() });
   }
 }
 
-// Load chat messages
-async function loadMessages(id){
-  const snap = await db.collection("users").doc(userId).collection("chats").doc(id).collection("messages").orderBy("timestamp").get();
-  ui.window.innerHTML="";
-  chatHistory=[];
-  for(const d of snap.docs){
-    const m = d.data();
-    typeMessage(m.sender,m.text,m.time);
-  }
+// ⬇️ Load from Firestore
+async function loadFromFirestore(id) {
+  const snap = await db.collection("users").doc(userId)
+    .collection("chats").doc(id).collection("messages")
+    .orderBy("timestamp").get();
+
+  chatHistory = [];
+  ui.window.innerHTML = "";
+
+  snap.forEach(doc => {
+    const { sender, text, time } = doc.data();
+    showMessage(sender, text, time);
+    chatHistory.push({ sender, text, time });
+  });
 }
 
-function getTime(){
-  return new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+// 🧹 Reset
+ui.reset.onclick = () => {
+  ui.window.innerHTML = "";
+  chatHistory = [];
+  clearHistory();
+};
+
+// 📥 Download
+ui.download.onclick = () => {
+  const txt = chatHistory.map(c => `[${c.time}] ${c.sender.toUpperCase()}: ${c.text}`).join("\n");
+  const blob = new Blob([txt], { type: "text/plain" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "chat.txt";
+  a.click();
+};
+
+// 🧠 Util
+function format(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.*?)\*/g, "<em>$1</em>")
+    .replace(/`(.*?)`/g, "<code>$1</code>")
+    .replace(/\n/g, "<br>");
+}
+
+function getTime() {
+  return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
