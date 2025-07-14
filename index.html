@@ -4,18 +4,28 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MikGPT</title>
-  <link rel="stylesheet" href="styles/base.css" />
-  <link rel="stylesheet" href="styles/light.css" media="(prefers-color-scheme: light)" />
-  <link rel="stylesheet" href="styles/dark.css" media="(prefers-color-scheme: dark)" />
+  <link rel="stylesheet" href="styles/style.css" />
+  <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script defer src="scripts/script.js"></script>
 </head>
 <body>
-  <div id="app">
+  <!-- Auth Screen -->
+  <div id="auth-screen" class="auth-screen">
+    <h1>MikGPT</h1>
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <button id="login-btn">Login</button>
+    <button id="signup-btn">Sign Up</button>
+    <button id="google-login">Login with Google</button>
+  </div>
+
+  <!-- Chat App -->
+  <div id="app" style="display:none;">
     <aside class="sidebar">
       <h2>MikGPT</h2>
       <button id="new-chat-btn">+ New Chat</button>
-      <div id="chat-list"></div>
       <button id="logout-btn">Logout</button>
-      <button id="reset-btn">Reset</button>
     </aside>
 
     <main class="chat-container">
@@ -24,12 +34,10 @@
       </div>
       <div id="chat-messages" class="chat-messages"></div>
       <form id="chat-form" class="chat-form">
-        <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off" />
-        <button type="submit">Send</button>
+        <input type="text" id="chat-input" placeholder="Type something..." />
+        <button type="submit">➤</button>
       </form>
     </main>
   </div>
-
-  <script src="scripts/script.js" defer></script>
 </body>
 </html>

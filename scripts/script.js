@@ -1,23 +1,71 @@
+// ==== CONFIG ====
+const firebaseConfig = {
+  apiKey: "AIzaSyCcClI7IoSqBc1WAitxRO9OWgcDoyers4Y",
+  authDomain: "mikgpt.firebaseapp.com",
+  projectId: "mikgpt",
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+// ==== ELEMENTS ====
+const authScreen = document.getElementById("auth-screen");
+const app = document.getElementById("app");
 const chatForm = document.getElementById("chat-form");
 const chatInput = document.getElementById("chat-input");
 const chatMessages = document.getElementById("chat-messages");
+const logoutBtn = document.getElementById("logout-btn");
+const newChatBtn = document.getElementById("new-chat-btn");
 
-// Handle form submission
-chatForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const message = chatInput.value.trim();
-  if (!message) return;
+document.getElementById("login-btn").onclick = () => {
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("password").value;
+  auth.signInWithEmailAndPassword(email, pass).catch(console.error);
+};
 
-  addMessage("user", message);
-  chatInput.value = "";
+document.getElementById("signup-btn").onclick = () => {
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("password").value;
+  auth.createUserWithEmailAndPassword(email, pass).catch(console.error);
+};
 
-  // Simulated response delay
-  setTimeout(() => {
-    typeBotMessage("Hmm... let me think.");
-  }, 500);
+document.getElementById("google-login").onclick = () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).catch(console.error);
+};
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    authScreen.style.display = "none";
+    app.style.display = "flex";
+  } else {
+    authScreen.style.display = "flex";
+    app.style.display = "none";
+  }
 });
 
-// Add a message to chat
+// ==== CHAT ====
+chatForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const msg = chatInput.value.trim();
+  if (!msg) return;
+  chatInput.value = "";
+  addMessage("user", msg);
+
+  try {
+    const res = await fetch("https://mikgpt-v4-backend-production.up.railway.app/api", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: msg, uid: auth.currentUser?.uid || "anon" })
+    });
+    const data = await res.json();
+    typeMessage("bot", data.reply || "No response");
+  } catch (err) {
+    console.error(err);
+    typeMessage("bot", "Error reaching backend.");
+  }
+});
+
 function addMessage(sender, text) {
   const msg = document.createElement("div");
   msg.className = `message ${sender}`;
@@ -26,17 +74,22 @@ function addMessage(sender, text) {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// Type message letter-by-letter
-function typeBotMessage(text) {
+function typeMessage(sender, text) {
   const msg = document.createElement("div");
-  msg.className = "message bot";
+  msg.className = `message ${sender}`;
   chatMessages.appendChild(msg);
-
   let i = 0;
   const interval = setInterval(() => {
     msg.textContent += text[i];
     i++;
     if (i >= text.length) clearInterval(interval);
     chatMessages.scrollTop = chatMessages.scrollHeight;
-  }, 30); // adjust typing speed here
+  }, 20);
 }
+
+newChatBtn.onclick = () => {
+  chatMessages.innerHTML = "";
+  document.getElementById("current-chat-title").textContent = "New Chat";
+};
+
+logoutBtn.onclick = () => auth.signOut();
