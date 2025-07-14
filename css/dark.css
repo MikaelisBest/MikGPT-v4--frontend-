@@ -1,5 +1,7 @@
 :root {
-  --bg: #1e1e1e;
+  --bg: #121212;
   --text: #ffffff;
-  --sidebar-bg: #2c2c2c;
+  --sidebar-bg: #1e1e1e;
+  --bubble-user: #2e3a4f;
+  --bubble-bot: #2c2c2c;
 }
