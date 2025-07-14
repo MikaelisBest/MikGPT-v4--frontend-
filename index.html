@@ -11,22 +11,35 @@
   <div class="chat-wrapper">
     <header class="chat-header">
       <h1>MikGPT</h1>
-      <button id="toggleMode" title="Toggle Theme">🌙</button>
+      <div class="top-controls">
+        <button id="toggleMode" title="Toggle Theme">🌙</button>
+        <button id="resetChat" title="Reset Chat">♻️</button>
+        <button id="downloadChat" title="Download Chat">⬇️</button>
+      </div>
     </header>
 
+    <!-- Suggested Prompt Buttons -->
+    <div class="suggested-prompts">
+      <button class="prompt-btn">Summarize this</button>
+      <button class="prompt-btn">Explain like I'm 10</button>
+      <button class="prompt-btn">Write a poem</button>
+      <button class="prompt-btn">Give me 3 tips</button>
+    </div>
+
+    <!-- Chat Container -->
     <div id="chat-messages" class="chat-messages">
       <div id="loading-indicator" class="loading">MikGPT is thinking...</div>
     </div>
 
+    <!-- Chat Form -->
     <form id="message-form" class="chat-form">
-      <input
-        type="text"
+      <textarea
         id="message-input"
         placeholder="Ask something..."
         autocomplete="off"
         required
-      />
-      <button type="submit">➤</button>
+      ></textarea>
+      <button type="submit" id="sendBtn">➤</button>
     </form>
   </div>
 
