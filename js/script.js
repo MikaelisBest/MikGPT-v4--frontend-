@@ -80,7 +80,7 @@ function addMessage(sender, text, time = "") {
   container.classList.add("message-container");
 
   const message = document.createElement("div");
-  message.classList.add("message", `${sender}-message`);
+  container.classList.add("message-container", sender);
 
   const timestamp = document.createElement("div");
   timestamp.className = "timestamp";

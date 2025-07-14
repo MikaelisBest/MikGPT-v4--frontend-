@@ -99,11 +99,12 @@ body {
 }
 
 .user-message {
-  align-self: flex-end;
-  margin-left: auto;
-  margin-right: 10px;
   background: #4a90e2;
   color: white;
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+  max-width: 70%;
+  word-wrap: break-word;
 }
 
 .bot-message {
