@@ -98,7 +98,7 @@ function addMessage(sender, text, time = "") {
         clearInterval(typingInterval);
         loader.style.display = "none";
       }
-    }, 7.5 + text.length * 0.05); // speed depends on length
+    }, 5.0 + text.length * 0.05); // speed depends on length
   } else {
     message.innerHTML = formatMarkdown(text);
   }
