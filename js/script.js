@@ -114,12 +114,18 @@ function saveMessage(sender, text, time) {
     localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
 }
 
-// ♻️ Reset chat
-resetBtn.addEventListener("click", () => {
-    localStorage.removeItem("chatHistory");
-    chatHistory = [];
-    messages.innerHTML = '<div id="loading-indicator" class="loading">MikGPT is thinking...</div>';
-});
+function resetChat() {
+  const messages = document.getElementById("chat-messages");
+  
+  // Remove all messages except the loader
+  Array.from(messages.children).forEach((child) => {
+    if (child.id !== "loading-indicator") {
+      child.remove();
+    }
+  });
+
+  localStorage.removeItem("chatHistory");
+}
 
 // ⬇️ Download chat
 downloadBtn.addEventListener("click", () => {
