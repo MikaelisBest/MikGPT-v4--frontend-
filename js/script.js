@@ -168,3 +168,59 @@ function formatMarkdown(text) {
     .replace(/:\(/g, "😢")
     .replace(/:D/g, "😄");
 }
+
+// Firebase Auth Setup — make sure firebase-app-compat and firebase-auth-compat are loaded in HTML
+
+// Elements
+const authSection = document.getElementById("auth-section");
+const chatWrapper = document.querySelector(".chat-wrapper");
+const signUpBtn = document.getElementById("signUpBtn");
+const signInBtn = document.getElementById("signInBtn");
+const googleBtn = document.getElementById("googleBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+
+// Show/hide based on auth state
+firebase.auth().onAuthStateChanged((user) => {
+  if (user) {
+    authSection.style.display = "none";
+    chatWrapper.style.display = "flex";
+  } else {
+    authSection.style.display = "flex";
+    chatWrapper.style.display = "none";
+  }
+});
+
+// Sign up
+signUpBtn.addEventListener("click", () => {
+  const email = document.getElementById("emailInput").value;
+  const password = document.getElementById("passwordInput").value;
+
+  firebase.auth().createUserWithEmailAndPassword(email, password)
+    .then(() => alert("✅ Signed up successfully!"))
+    .catch((err) => alert("❌ " + err.message));
+});
+
+// Sign in
+signInBtn.addEventListener("click", () => {
+  const email = document.getElementById("emailInput").value;
+  const password = document.getElementById("passwordInput").value;
+
+  firebase.auth().signInWithEmailAndPassword(email, password)
+    .then(() => alert("✅ Logged in!"))
+    .catch((err) => alert("❌ " + err.message));
+});
+
+// Google sign in
+googleBtn.addEventListener("click", () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(provider)
+    .then(() => alert("✅ Signed in with Google!"))
+    .catch((err) => alert("❌ " + err.message));
+});
+
+// Logout
+logoutBtn.addEventListener("click", () => {
+  firebase.auth().signOut().then(() => {
+    alert("👋 Logged out");
+  });
+});
