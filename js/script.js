@@ -54,7 +54,6 @@ form.addEventListener("submit", async (e) => {
         });
 
         const data = await res.json();
-        loader.style.display = "none";
 
         if (data.status === "success") {
             addMessage("bot", data.response);
@@ -62,7 +61,6 @@ form.addEventListener("submit", async (e) => {
             addMessage("bot", "❌ Error: " + data.message);
         }
     } catch (err) {
-        loader.style.display = "none";
         addMessage("bot", "🚫 Failed to connect to backend.");
         console.error("Error:", err);
     }
@@ -71,7 +69,24 @@ form.addEventListener("submit", async (e) => {
 function addMessage(sender, text) {
     const message = document.createElement("div");
     message.classList.add("message", `${sender}-message`);
-    message.textContent = text;
+
+    if (sender === "bot") {
+        // Typing animation
+        let i = 0;
+        const typingInterval = setInterval(() => {
+            if (i < text.length) {
+                message.textContent += text.charAt(i);
+                i++;
+                messages.scrollTop = messages.scrollHeight;
+            } else {
+                clearInterval(typingInterval);
+                loader.style.display = "none";
+            }
+        }, 15); // typing speed (lower = faster)
+    } else {
+        message.textContent = text;
+    }
+
     messages.insertBefore(message, loader);
     messages.scrollTop = messages.scrollHeight;
 }
