@@ -243,3 +243,35 @@ html.transitioning {
   color: white;
   cursor: pointer;
 }
+
+/* 🔐 Auth Section Styling */
+#auth-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  margin-top: 2rem;
+}
+
+#auth-section input {
+  background: #1e1e1e;
+  color: #f0f0f0;
+  border: 1px solid #444;
+}
+
+#auth-section button {
+  padding: 0.5rem 1.1rem;
+  font-size: 1rem;
+  border: none;
+  background: #4a90e2;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#auth-section button:hover {
+  background: #3a7bd5;
+}

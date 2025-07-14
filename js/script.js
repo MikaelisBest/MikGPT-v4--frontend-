@@ -1,13 +1,11 @@
-// 🌗 Theme toggle setup — PUT THIS AT THE VERY TOP
+// 🌗 Theme toggle setup
 const toggleBtn = document.getElementById("toggleMode");
 const themeLink = document.getElementById("themeStylesheet");
 
-// saved theme from localStorage
 let savedTheme = localStorage.getItem("theme") || "light";
 themeLink.href = `css/${savedTheme}.css`;
 toggleBtn.textContent = savedTheme === "dark" ? "☀️" : "🌙";
 
-// 🌟 Smooth transition with blur+scale
 toggleBtn.addEventListener("click", () => {
   document.documentElement.classList.add("transitioning");
   setTimeout(() => {
@@ -16,16 +14,14 @@ toggleBtn.addEventListener("click", () => {
     themeLink.href = `css/${next}.css`;
     localStorage.setItem("theme", next);
     toggleBtn.textContent = next === "dark" ? "☀️" : "🌙";
-    setTimeout(() => {
-      document.documentElement.classList.remove("transitioning");
-    }, 300);
+    setTimeout(() => document.documentElement.classList.remove("transitioning"), 300);
   }, 50);
 });
 
-// 🔁 Chat history
+// 🔁 Chat state
 let chatHistory = JSON.parse(localStorage.getItem("chatHistory")) || [];
 
-// 💬 DOM refs
+// DOM refs
 const form = document.getElementById("message-form");
 const input = document.getElementById("message-input");
 const messages = document.getElementById("chat-messages");
@@ -36,18 +32,18 @@ const promptBtns = document.querySelectorAll(".prompt-btn");
 
 const BACKEND_URL = "https://mikgpt-v4-backend-production.up.railway.app/api/chat";
 
-// 🔥 Load saved chat
+// Load history
 chatHistory.forEach(({ sender, text, time }) => addMessage(sender, text, time));
 
-// 🚀 Form submit
+// Submit handler
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const userMessage = input.value.trim();
   if (!userMessage) return;
 
-  const userTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  addMessage("user", userMessage, userTime);
-  saveMessage("user", userMessage, userTime);
+  const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  addMessage("user", userMessage, time);
+  saveMessage("user", userMessage, time);
   input.value = "";
 
   loader.style.display = "block";
@@ -69,12 +65,12 @@ form.addEventListener("submit", async (e) => {
       addMessage("bot", "❌ Error: " + data.message);
     }
   } catch (err) {
-    addMessage("bot", "🚫 Failed to connect to backend.");
-    console.error("Error:", err);
+    addMessage("bot", "🚫 Backend connection failed.");
+    console.error(err);
   }
 });
 
-// ➕ Add message to DOM
+// Add message to DOM
 function addMessage(sender, text, time = "") {
   const container = document.createElement("div");
   container.classList.add("message-container");
@@ -109,18 +105,16 @@ function addMessage(sender, text, time = "") {
   messages.scrollTo({ top: messages.scrollHeight, behavior: "smooth" });
 }
 
-// 💾 Save to localStorage
+// Save chat
 function saveMessage(sender, text, time) {
   chatHistory.push({ sender, text, time });
   localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
 }
 
-// ♻️ Reset Chat
+// Reset chat
 resetBtn.addEventListener("click", () => {
   Array.from(messages.children).forEach((child) => {
-    if (child.id !== "loading-indicator") {
-      child.remove();
-    }
+    if (child.id !== "loading-indicator") child.remove();
   });
   input.value = "";
   loader.style.display = "none";
@@ -128,7 +122,7 @@ resetBtn.addEventListener("click", () => {
   localStorage.removeItem("chatHistory");
 });
 
-// ⬇️ Download chat
+// Download chat
 downloadBtn.addEventListener("click", () => {
   let txt = "";
   chatHistory.forEach(({ sender, text, time }) => {
@@ -141,7 +135,7 @@ downloadBtn.addEventListener("click", () => {
   link.click();
 });
 
-// ⚡ Suggested prompts
+// Suggested prompts
 promptBtns.forEach((btn) => {
   btn.addEventListener("click", () => {
     input.value = btn.textContent;
@@ -149,7 +143,7 @@ promptBtns.forEach((btn) => {
   });
 });
 
-// ↵ Enter to send, Shift+Enter for newline
+// Enter key to send
 input.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
@@ -157,7 +151,7 @@ input.addEventListener("keydown", (e) => {
   }
 });
 
-// ✨ Markdown formatter
+// Basic Markdown
 function formatMarkdown(text) {
   return text
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
@@ -169,89 +163,30 @@ function formatMarkdown(text) {
     .replace(/:D/g, "😄");
 }
 
-// Firebase Auth Setup — make sure firebase-app-compat and firebase-auth-compat are loaded in HTML
-
-// Elements
-const authSection = document.getElementById("auth-section");
-const chatWrapper = document.querySelector(".chat-wrapper");
-const signUpBtn = document.getElementById("signUpBtn");
-const signInBtn = document.getElementById("signInBtn");
-const googleBtn = document.getElementById("googleBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-
-// Show/hide based on auth state
-firebase.auth().onAuthStateChanged((user) => {
-  if (user) {
-    authSection.style.display = "none";
-    chatWrapper.style.display = "flex";
-  } else {
-    authSection.style.display = "flex";
-    chatWrapper.style.display = "none";
-  }
-});
-
-// Sign up
-signUpBtn.addEventListener("click", () => {
-  const email = document.getElementById("emailInput").value;
-  const password = document.getElementById("passwordInput").value;
-
-  firebase.auth().createUserWithEmailAndPassword(email, password)
-    .then(() => alert("✅ Signed up successfully!"))
-    .catch((err) => alert("❌ " + err.message));
-});
-
-// Sign in
-signInBtn.addEventListener("click", () => {
-  const email = document.getElementById("emailInput").value;
-  const password = document.getElementById("passwordInput").value;
-
-  firebase.auth().signInWithEmailAndPassword(email, password)
-    .then(() => alert("✅ Logged in!"))
-    .catch((err) => alert("❌ " + err.message));
-});
-
-// Google sign in
-googleBtn.addEventListener("click", () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  firebase.auth().signInWithPopup(provider)
-    .then(() => alert("✅ Signed in with Google!"))
-    .catch((err) => alert("❌ " + err.message));
-});
-
-// Logout
-logoutBtn.addEventListener("click", () => {
-  firebase.auth().signOut().then(() => {
-    alert("👋 Logged out");
-  });
-});
-
-// 🔐 Firebase Auth logic
+// 🔐 Firebase Auth UI Handling (basic)
 firebase.auth().onAuthStateChanged((user) => {
   const authSection = document.getElementById("auth-section");
-  const chatWrapper = document.querySelector(".chat-wrapper");
-  const logoutBtn = document.getElementById("logoutBtn");
+  const chatWrapper = document.getElementById("chat-wrapper");
 
   if (user) {
     authSection.style.display = "none";
     chatWrapper.style.display = "flex";
-    logoutBtn.style.display = "inline-block";
   } else {
-    authSection.style.display = "flex";
     chatWrapper.style.display = "none";
-    logoutBtn.style.display = "none";
+    authSection.style.display = "flex";
   }
 });
 
 document.getElementById("signInBtn").addEventListener("click", () => {
   const email = document.getElementById("emailInput").value;
-  const password = document.getElementById("passwordInput").value;
-  firebase.auth().signInWithEmailAndPassword(email, password).catch(console.error);
+  const pass = document.getElementById("passwordInput").value;
+  firebase.auth().signInWithEmailAndPassword(email, pass).catch(console.error);
 });
 
 document.getElementById("signUpBtn").addEventListener("click", () => {
   const email = document.getElementById("emailInput").value;
-  const password = document.getElementById("passwordInput").value;
-  firebase.auth().createUserWithEmailAndPassword(email, password).catch(console.error);
+  const pass = document.getElementById("passwordInput").value;
+  firebase.auth().createUserWithEmailAndPassword(email, pass).catch(console.error);
 });
 
 document.getElementById("googleBtn").addEventListener("click", () => {
