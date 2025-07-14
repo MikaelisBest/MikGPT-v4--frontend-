@@ -78,10 +78,10 @@ form.addEventListener("submit", async (e) => {
 function addMessage(sender, text, time = "") {
   const container = document.createElement("div");
   container.classList.add("message-container");
+  if (sender === "user") container.classList.add("user");
 
   const message = document.createElement("div");
-  container.classList.add("message-container");
-if (sender === "user") container.classList.add("user");
+  message.classList.add("message", `${sender}-message`);
 
   const timestamp = document.createElement("div");
   timestamp.className = "timestamp";
@@ -98,7 +98,7 @@ if (sender === "user") container.classList.add("user");
         clearInterval(typingInterval);
         loader.style.display = "none";
       }
-    }, 7.5 + text.length * 0.05);
+    }, 7.5 + text.length * 0.05); // speed depends on length
   } else {
     message.innerHTML = formatMarkdown(text);
   }
