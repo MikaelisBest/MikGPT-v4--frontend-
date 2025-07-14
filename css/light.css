@@ -1,18 +1,12 @@
 :root {
-  --bg: #f9f9f9;
-  --text: #111;
-  --sidebar-bg: #fff;
-  --form-bg: #fff;
+  --bg: #ffffff;
+  --text: #111111;
+  --sidebar-bg: #f3f3f3;
+  --chat-bg: #fafafa;
+  --input-bg: #eaeaea;
+  --user-msg: #cce5ff;
+  --bot-msg: #e6e6e6;
+  --btn-bg: #dddddd;
+  --btn-hover: #c5c5c5;
   --border: #ccc;
-  --input-bg: #fff;
-  --accent: #007bff;
-  --button-bg: #f0f0f0;
-  --button-text: #111;
-  --button-hover: #e0e0e0;
-  --user-bubble: #d0ebff;
-  --bot-bubble: #eaeaea;
-  --user-text: #000;
-  --bot-text: #111;
-  --timestamp: #666;
-  --shadow: 0 2px 8px rgba(0,0,0,0.05);
 }

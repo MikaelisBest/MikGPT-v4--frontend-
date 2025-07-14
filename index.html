@@ -1,55 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MikGPT</title>
-  <link rel="stylesheet" href="css/base.css" />
-  <link id="themeStylesheet" rel="stylesheet" href="css/light.css" />
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/light.css" media="(prefers-color-scheme: light)" />
+  <link rel="stylesheet" href="styles/dark.css" media="(prefers-color-scheme: dark)" />
 </head>
 <body>
-  <div id="auth-section" class="auth">
-    <h2>MikGPT Login</h2>
-    <input type="email" id="emailInput" placeholder="Email" />
-    <input type="password" id="passwordInput" placeholder="Password" />
-    <button id="signInBtn">Log In</button>
-    <button id="signUpBtn">Sign Up</button>
-    <button id="googleBtn">Google</button>
-  </div>
-
-  <div id="chat-wrapper" class="hidden app">
+  <div id="app">
     <aside class="sidebar">
       <h2>MikGPT</h2>
-      <button id="toggleMode">🌙</button>
-      <button id="resetChat">♻️</button>
-      <button id="downloadChat">⬇️</button>
-      <button id="logoutBtn">🚪</button>
+      <button id="new-chat-btn">+ New Chat</button>
+      <div id="chat-list"></div>
+      <button id="logout-btn">Logout</button>
+      <button id="reset-btn">Reset</button>
     </aside>
 
-    <main class="chat-area">
-      <div id="chat-messages" class="chat-messages">
-        <div id="loading-indicator" class="loading hidden">MikGPT is thinking...</div>
+    <main class="chat-container">
+      <div class="chat-header">
+        <h3 id="current-chat-title">New Chat</h3>
       </div>
-      <form id="message-form" class="chat-form">
-        <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off" required />
-        <button type="submit">➤</button>
+      <div id="chat-messages" class="chat-messages"></div>
+      <form id="chat-form" class="chat-form">
+        <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off" />
+        <button type="submit">Send</button>
       </form>
     </main>
   </div>
 
-  <script>
-    firebase.initializeApp({
-      apiKey: "AIzaSyCcClI7IoSqBc1WAitxRO9OWgcDoyers4Y",
-      authDomain: "mikgpt.firebaseapp.com",
-      projectId: "mikgpt",
-      storageBucket: "mikgpt.appspot.com",
-      messagingSenderId: "399290939653",
-      appId: "1:399290939653:web:dbece7f7171b31112f9f6c"
-    });
-  </script>
-  <script type="module" src="js/script.js"></script>
+  <script src="scripts/script.js" defer></script>
 </body>
 </html>
