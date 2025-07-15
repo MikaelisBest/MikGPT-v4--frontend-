@@ -104,6 +104,6 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         clearInterval(interval);
       }
-    }, 20);
+    }, 7.5);
   }
 });
