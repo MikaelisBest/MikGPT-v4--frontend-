@@ -96,6 +96,8 @@ body {
   background-color: var(--sidebar);
   border-radius: 10px;
   padding: 1rem;
+  height: 100vh;
+  max-height: 100vh;
 }
 
 .chat-header {
@@ -109,7 +111,11 @@ body {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  justify-content: flex-start;
+  padding-right: 8px;
+  height: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: #666 transparent;
 }
 
 .message {
