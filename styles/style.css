@@ -16,6 +16,11 @@
   --input-bg: #ffffff;
 }
 
+html, body, .sidebar, .chat, .message, .chat-form input, .chat-form button,
+.auth-screen input, .auth-buttons button {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
