@@ -3,10 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MikGPT</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <title>MikGPT-V4</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles/style.css" />
   <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -14,26 +12,29 @@
 </head>
 <body>
   <div id="auth-screen" class="auth-screen">
-    <h1>MikGPT Login</h1>
+    <h1>Welcome to MikGPT</h1>
     <input type="email" id="email" placeholder="Email" />
     <input type="password" id="password" placeholder="Password" />
-    <button id="login-btn">Login</button>
-    <button id="signup-btn">Sign Up</button>
-    <button id="google-login">Continue with Google</button>
+    <div class="auth-buttons">
+      <button id="login-btn">Login</button>
+      <button id="signup-btn">Sign Up</button>
+      <button id="google-login">Login with Google</button>
+    </div>
   </div>
-  <div id="app" style="display:none;">
+
+  <div id="app" class="app hidden">
     <aside class="sidebar">
       <h2>MikGPT</h2>
-      <button id="new-chat-btn">+ New Chat</button>
+      <button id="new-chat-btn">New Chat</button>
       <button id="logout-btn">Logout</button>
     </aside>
-    <main class="chat-container">
-      <div class="chat-header">
+    <main class="chat">
+      <header class="chat-header">
         <h3 id="current-chat-title">New Chat</h3>
-      </div>
+      </header>
       <div id="chat-messages" class="chat-messages"></div>
       <form id="chat-form" class="chat-form">
-        <input type="text" id="chat-input" placeholder="Type something..." />
+        <input type="text" id="chat-input" placeholder="Type your message..." autocomplete="off" />
         <button type="submit">➤</button>
       </form>
     </main>
