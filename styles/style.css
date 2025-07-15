@@ -132,7 +132,7 @@ body {
 
 .message.user {
   background-color: var(--user-msg);
-  color: #000;
+  color: var(--text);
   align-self: flex-end;
 }
 
