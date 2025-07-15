@@ -12,26 +12,31 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatForm = document.getElementById("chat-form");
   const chatInput = document.getElementById("chat-input");
   const chatMessages = document.getElementById("chat-messages");
-  const logoutBtn = document.getElementById("logout-btn");
-  const newChatBtn = document.getElementById("new-chat-btn");
   const loginBtn = document.getElementById("login-btn");
   const signupBtn = document.getElementById("signup-btn");
   const googleBtn = document.getElementById("google-login");
+  const logoutBtn = document.getElementById("logout-btn");
+  const newChatBtn = document.getElementById("new-chat-btn");
+  const themeToggle = document.getElementById("theme-toggle");
 
   loginBtn.onclick = () => {
     const email = document.getElementById("email").value;
     const pass = document.getElementById("password").value;
     auth.signInWithEmailAndPassword(email, pass).catch(err => alert("Login failed: " + err.message));
   };
+
   signupBtn.onclick = () => {
     const email = document.getElementById("email").value;
     const pass = document.getElementById("password").value;
     auth.createUserWithEmailAndPassword(email, pass).catch(err => alert("Signup failed: " + err.message));
   };
+
   googleBtn.onclick = () => {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider).catch(err => alert("Google login failed: " + err.message));
   };
+
+  logoutBtn.onclick = () => auth.signOut();
 
   auth.onAuthStateChanged(user => {
     if (user) {
@@ -68,10 +73,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  logoutBtn.onclick = () => auth.signOut();
   newChatBtn.onclick = () => {
     chatMessages.innerHTML = "";
     document.getElementById("current-chat-title").textContent = "New Chat";
+  };
+
+  themeToggle.onclick = () => {
+    const html = document.documentElement;
+    html.setAttribute("data-theme", html.getAttribute("data-theme") === "dark" ? "light" : "dark");
   };
 
   function addMessage(sender, text) {
