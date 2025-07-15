@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
 
-  // Elements
   const authScreen = document.getElementById("auth-screen");
   const app = document.getElementById("app");
   const chatForm = document.getElementById("chat-form");
@@ -103,12 +102,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const msg = document.createElement("div");
     msg.className = `message ${sender}`;
     chatMessages.appendChild(msg);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
     let i = 0;
+    const safeText = [...text];
     const interval = setInterval(() => {
-      msg.textContent += text[i];
-      i++;
-      if (i >= text.length) clearInterval(interval);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+      if (i < safeText.length) {
+        msg.textContent += safeText[i];
+        i++;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      } else {
+        clearInterval(interval);
+      }
     }, 20);
   }
 });
