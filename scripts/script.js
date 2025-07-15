@@ -49,13 +49,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ✅ FIXED FORM HANDLING
   chatForm.addEventListener("submit", async (e) => {
-    e.preventDefault(); // ❗ Stops refresh
+    e.preventDefault();
 
     const msg = chatInput.value.trim();
     if (!msg) return;
 
+    console.log("📤 Sending:", msg);
     addMessage("user", msg);
     chatInput.value = "";
 
@@ -70,10 +70,16 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       const data = await res.json();
-      typeMessage("bot", data.reply || "No response.");
+      console.log("✅ API Response:", data);
+
+      if (data.reply) {
+        typeMessage("bot", data.reply);
+      } else {
+        typeMessage("bot", "⚠️ No reply returned from backend.");
+      }
     } catch (err) {
-      console.error(err);
-      typeMessage("bot", "⚠️ Could not reach MikGPT backend.");
+      console.error("🔥 Error during fetch:", err);
+      typeMessage("bot", "⚠️ Failed to fetch response.");
     }
   });
 
@@ -84,13 +90,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   logoutBtn.onclick = () => auth.signOut();
 
-  // Bubbles
   function addMessage(sender, text) {
     const msg = document.createElement("div");
     msg.className = `message ${sender}`;
     msg.textContent = text;
     chatMessages.appendChild(msg);
     chatMessages.scrollTop = chatMessages.scrollHeight;
+    console.log(`💬 [${sender}]`, text);
   }
 
   function typeMessage(sender, text) {
